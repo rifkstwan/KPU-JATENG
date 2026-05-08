@@ -1,0 +1,187 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  PEGAWAI
+  APPROVER
+  ADMIN
+}
+
+enum StatusSPPD {
+  DRAFT
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum JenisTransport {
+  DARAT
+  UDARA
+  KERETA
+  LAUT
+}
+
+enum TipeSurat {
+  SPT
+  SPPD
+}
+
+enum TipeNotifikasi {
+  PENDING
+  APPROVED
+  REJECTED
+  INFO
+}
+
+model User {
+  id        String   @id @default(cuid())
+  nama      String
+  nip       String?  @unique
+  email     String   @unique
+  password  String
+  jabatan   String?
+  divisi    String?
+  role      Role     @default(PEGAWAI)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  pengajuan  PengajuanSPPD[] @relation("PengajuSPPD")
+  approvals  Approval[]      @relation("ApproverSPPD")
+  suratPdf   SuratPdf[]
+  notifikasi Notifikasi[]
+  accounts   Account[]
+  sessions   Session[]
+
+  @@map("users")
+}
+
+model PengajuanSPPD {
+  id           String         @id @default(cuid())
+  nomorSppd    String         @unique
+  userId       String
+  tujuan       String
+  tglBerangkat DateTime       @db.Date
+  tglKembali   DateTime       @db.Date
+  transport    JenisTransport @default(DARAT)
+  anggaran     BigInt         @default(0)
+  maksud       String
+  catatan      String?
+  status       StatusSPPD     @default(DRAFT)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  user       User         @relation("PengajuSPPD", fields: [userId], references: [id])
+  approvals  Approval[]
+  dokumen    Dokumen[]
+  suratPdf   SuratPdf[]
+  notifikasi Notifikasi[]
+
+  @@map("pengajuan_sppd")
+}
+
+model Approval {
+  id          String     @id @default(cuid())
+  sppdId      String
+  approverId  String
+  keputusan   StatusSPPD
+  catatan     String?
+  urutanLevel Int        @default(1)
+  approvedAt  DateTime   @default(now())
+
+  sppd     PengajuanSPPD @relation(fields: [sppdId], references: [id], onDelete: Cascade)
+  approver User          @relation("ApproverSPPD", fields: [approverId], references: [id])
+
+  @@map("approval")
+}
+
+model Dokumen {
+  id          String   @id @default(cuid())
+  sppdId      String
+  namaFile    String
+  urlFile     String
+  tipeDokumen String?
+  uploadedAt  DateTime @default(now())
+
+  sppd PengajuanSPPD @relation(fields: [sppdId], references: [id], onDelete: Cascade)
+
+  @@map("dokumen")
+}
+
+model SuratPdf {
+  id              String    @id @default(cuid())
+  sppdId          String
+  tipeSurat       TipeSurat @default(SPPD)
+  urlPdf          String
+  digenFerateOleh String
+  generatedAt     DateTime  @default(now())
+
+  sppd PengajuanSPPD @relation(fields: [sppdId], references: [id], onDelete: Cascade)
+  user User          @relation(fields: [digenFerateOleh], references: [id])
+
+  @@map("surat_pdf")
+}
+
+model Notifikasi {
+  id        String         @id @default(cuid())
+  userId    String
+  sppdId    String?
+  pesan     String
+  tipe      TipeNotifikasi @default(INFO)
+  isRead    Boolean        @default(false)
+  createdAt DateTime       @default(now())
+
+  user User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sppd PengajuanSPPD? @relation(fields: [sppdId], references: [id], onDelete: SetNull)
+
+  @@map("notifikasi")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}

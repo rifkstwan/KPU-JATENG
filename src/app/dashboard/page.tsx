@@ -2,7 +2,6 @@ import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 
-
 type SppdItem = {
   id: string
   nomorSppd: string
@@ -12,15 +11,12 @@ type SppdItem = {
   user?: { nama: string } | null
 }
 
-
 export default async function DashboardPage() {
   const session = await auth()
   if (!session) redirect("/login")
 
-
   const userId = session.user.id
   const role = session.user.role
-
 
   const sppd: SppdItem[] = role === "PEGAWAI"
     ? await prisma.pengajuanSPPD.findMany({
@@ -34,26 +30,21 @@ export default async function DashboardPage() {
         include: { user: true },
       })
 
-
   const totalSppd = role === "PEGAWAI"
     ? await prisma.pengajuanSPPD.count({ where: { userId } })
     : await prisma.pengajuanSPPD.count()
-
 
   const totalDisetujui = role === "PEGAWAI"
     ? await prisma.pengajuanSPPD.count({ where: { userId, status: "APPROVED" } })
     : await prisma.pengajuanSPPD.count({ where: { status: "APPROVED" } })
 
-
   const totalMenunggu = role === "PEGAWAI"
     ? await prisma.pengajuanSPPD.count({ where: { userId, status: "PENDING" } })
     : await prisma.pengajuanSPPD.count({ where: { status: "PENDING" } })
 
-
   const hour = new Date().getHours()
   const greet = hour < 12 ? "Selamat pagi" : hour < 17 ? "Selamat siang" : "Selamat sore"
   const firstName = session.user.name?.split(" ")[0]
-
 
   const statusColor: Record<string, string> = {
     APPROVED: "#437a22",
@@ -73,7 +64,6 @@ export default async function DashboardPage() {
     REJECTED: "✕ Ditolak",
     DRAFT: "— Draft",
   }
-
 
   return (
     <div>
@@ -102,7 +92,6 @@ export default async function DashboardPage() {
           </a>
         )}
       </div>
-
 
       {/* KPI Cards */}
       <div style={{
@@ -142,7 +131,6 @@ export default async function DashboardPage() {
         ))}
       </div>
 
-
       {/* Tabel Pengajuan Terbaru */}
       <div style={{
         background: "white", border: "1px solid #dcd9d5",
@@ -164,7 +152,6 @@ export default async function DashboardPage() {
             Lihat semua →
           </a>
         </div>
-
 
         <div style={{ overflowX: "auto" }}>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
