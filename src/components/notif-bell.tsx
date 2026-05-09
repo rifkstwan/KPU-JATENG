@@ -1,127 +1,102 @@
-"use client"
+// src/components/notif-bell.tsx
+"use client";
+import { useState } from "react";
 
-import { useEffect, useState, useRef, useCallback } from "react"
-
-type Notif = {
-  id: string
-  pesan: string
-  tipe: string
-  isRead: boolean
-  createdAt: string
-}
-
-export default function NotifBell() {
-  const [notifs, setNotifs] = useState<Notif[]>([])
-  const [open, setOpen] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
-
-  const fetchNotifs = useCallback(async () => {
-    const res = await fetch("/api/notifikasi")
-    if (res.ok) {
-      const data = await res.json()
-      setNotifs(data)
-    }
-  }, [])
-
-  useEffect(() => {
-    void fetchNotifs()
-    const interval = setInterval(() => void fetchNotifs(), 30000)
-    return () => clearInterval(interval)
-  }, [fetchNotifs])
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false)
-      }
-    }
-    document.addEventListener("mousedown", handler)
-    return () => document.removeEventListener("mousedown", handler)
-  }, [])
-
-  const unread = notifs.filter(n => !n.isRead).length
-
-  const handleOpen = async () => {
-    setOpen(prev => !prev)
-    if (!open && unread > 0) {
-      await fetch("/api/notifikasi", { method: "PATCH" })
-      setNotifs(prev => prev.map(n => ({ ...n, isRead: true })))
-    }
-  }
-
-  const tipeIcon: Record<string, string> = {
-    APPROVED: "✅",
-    REJECTED: "❌",
-    PENDING: "⏳",
-    INFO: "ℹ️",
-  }
+export default function NotifBell({ count = 0 }: { count?: number }) {
+  const [open, setOpen] = useState(false);
 
   return (
-    <div ref={ref} style={{ position: "relative" }}>
+    <div style={{ position: "relative" }}>
       <button
-        onClick={() => void handleOpen()}
+        onClick={() => setOpen(!open)}
         style={{
-          background: "none", border: "none", cursor: "pointer",
-          padding: "6px", position: "relative", fontSize: "1.2rem",
+          background: "none",
+          border: "none",
+          cursor: "pointer",
+          padding: "8px",
+          borderRadius: "8px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          transition: "background 0.15s",
+          position: "relative",
         }}
+        onMouseEnter={e => (e.currentTarget.style.background = "#f3f4f6")}
+        onMouseLeave={e => (e.currentTarget.style.background = "none")}
+        title="Notifikasi"
       >
-        🔔
-        {unread > 0 && (
+        {/* Bell SVG icon */}
+        <svg
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#374151"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+          <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+        </svg>
+
+        {/* Badge notif merah */}
+        {count > 0 && (
           <span style={{
-            position: "absolute", top: "0", right: "0",
-            background: "#dc2626", color: "white",
-            borderRadius: "9999px", fontSize: "0.65rem",
-            fontWeight: 700, minWidth: "16px", height: "16px",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            padding: "0 3px",
+            position: "absolute",
+            top: "4px",
+            right: "4px",
+            background: "#ef4444",
+            color: "#fff",
+            fontSize: "10px",
+            fontWeight: 700,
+            width: "16px",
+            height: "16px",
+            borderRadius: "50%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            lineHeight: 1,
+            border: "2px solid #fff",
           }}>
-            {unread}
+            {count > 9 ? "9+" : count}
           </span>
         )}
       </button>
 
+      {/* Dropdown notifikasi */}
       {open && (
         <div style={{
-          position: "absolute", right: 0, top: "36px",
-          width: "320px", background: "white",
-          border: "1px solid #e5e7eb", borderRadius: "8px",
-          boxShadow: "0 4px 16px rgba(0,0,0,0.1)", zIndex: 100,
+          position: "absolute",
+          right: 0,
+          top: "calc(100% + 8px)",
+          width: 320,
+          background: "#fff",
+          borderRadius: 12,
+          boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
+          border: "1px solid #e5e7eb",
+          zIndex: 100,
+          overflow: "hidden",
         }}>
           <div style={{
-            padding: "12px 16px", borderBottom: "1px solid #e5e7eb",
-            fontWeight: 700, fontSize: "0.9rem",
+            padding: "14px 18px",
+            borderBottom: "1px solid #f3f4f6",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
           }}>
-            Notifikasi
+            <span style={{ fontWeight: 700, fontSize: 14, color: "#111827" }}>
+              Notifikasi
+            </span>
+            <span style={{ fontSize: 12, color: "#6b7280" }}>
+              {count} baru
+            </span>
           </div>
-          {notifs.length === 0 ? (
-            <div style={{
-              padding: "16px", color: "#888",
-              fontSize: "0.85rem", textAlign: "center",
-            }}>
-              Tidak ada notifikasi
-            </div>
-          ) : (
-            notifs.map(n => (
-              <div key={n.id} style={{
-                padding: "12px 16px",
-                borderBottom: "1px solid #f0f0f0",
-                background: n.isRead ? "white" : "#eff6ff",
-                fontSize: "0.85rem",
-              }}>
-                <div style={{ display: "flex", gap: "8px", alignItems: "flex-start" }}>
-                  <span>{tipeIcon[n.tipe] || "ℹ️"}</span>
-                  <div>
-                    <p style={{ margin: 0, color: "#333" }}>{n.pesan}</p>
-                    <p style={{ margin: "2px 0 0", color: "#999", fontSize: "0.75rem" }}>
-                      {new Date(n.createdAt).toLocaleString("id-ID")}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
+          <div style={{ padding: "12px 18px", color: "#9ca3af", fontSize: 13, textAlign: "center" }}>
+            Belum ada notifikasi terbaru
+          </div>
         </div>
       )}
     </div>
-  )
+  );
 }

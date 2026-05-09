@@ -1,22 +1,13 @@
 import type { Metadata } from "next"
-import Providers from "./providers"
-import "./globals.css"
 
 export const metadata: Metadata = {
   title: "SPPD KPU",
-  description: "Sistem Perjalanan Dinas KPU",
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="id">
-      <body>
-        <Providers>{children}</Providers>
-      </body>
+      <body style={{ margin: 0, padding: 0 }}>{children}</body>
     </html>
   )
 }
