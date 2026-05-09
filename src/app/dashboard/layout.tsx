@@ -91,7 +91,6 @@ const navItems = {
   ],
 }
 
-// Footer sidebar — tampil untuk semua role
 const footerItems = [
   { href: "/dashboard/pengaturan", label: "Pengaturan", icon: Icons.settings },
 ]
@@ -112,6 +111,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       fontFamily: "'Inter', 'Segoe UI', sans-serif",
       background: "#f5f6fa",
     }}>
+
       {/* ══════════════════════════════
            SIDEBAR
          ══════════════════════════════ */}
@@ -126,6 +126,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         height: "100vh",
         zIndex: 200,
       }}>
+
         {/* Logo Header */}
         <div style={{
           padding: "20px 16px 18px",
@@ -135,6 +136,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           borderBottom: "1px solid rgba(255,255,255,0.07)",
           flexShrink: 0,
         }}>
+          {/* Kotak putih logo */}
           <div style={{
             width: 38,
             height: 38,
@@ -145,12 +147,18 @@ export default async function DashboardLayout({ children }: { children: React.Re
             justifyContent: "center",
             flexShrink: 0,
             boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+            overflow: "hidden",
           }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00205b" strokeWidth="2.5">
-              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
-              <polyline points="9 22 9 12 15 12 15 22"/>
-            </svg>
+            <img
+              src="/logo-kpu.png"
+              alt="Logo KPU"
+              width={34}
+              height={34}
+              style={{ objectFit: "contain" }}
+            />
           </div>
+
+          {/* Teks SPPD KPU */}
           <div>
             <div style={{
               fontWeight: 800,
@@ -200,6 +208,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           ))}
           <SignOutButton />
         </div>
+
       </aside>
 
       {/* ══════════════════════════════
@@ -212,6 +221,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         flexDirection: "column",
         minWidth: 0,
       }}>
+
         {/* ── TOPBAR ── */}
         <header style={{
           background: "#ffffff",
@@ -227,6 +237,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
           flexShrink: 0,
         }}>
+
           {/* Search Bar */}
           <div style={{
             display: "flex",
@@ -279,6 +290,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         }}>
           {children}
         </main>
+
       </div>
     </div>
   )
