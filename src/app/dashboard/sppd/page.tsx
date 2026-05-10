@@ -1,87 +1,78 @@
 import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
+import { prisma } from "@/lib/prisma"
 import Link from "next/link"
+import SppdList from "./list"
 
 export default async function SppdPage() {
   const session = await auth()
   if (!session) redirect("/login")
 
+  const isAdminOrApprover = ["ADMIN", "APPROVER"].includes(session.user.role ?? "")
+
+  const rawData = await prisma.pengajuanSPPD.findMany({
+    where: isAdminOrApprover ? {} : { userId: session.user.id },
+    include: {
+      user: { select: { nama: true, jabatan: true, divisi: true } },
+      approvals: {
+        include: { approver: { select: { nama: true } } },
+        orderBy: { approvedAt: "desc" },
+        take: 1,
+      },
+    },
+    orderBy: { createdAt: "desc" },
+  })
+
+  // Serialize BigInt + Date → string (tidak bisa langsung pass ke Client Component)
+  const data = rawData.map((item) => ({
+    ...item,
+    anggaran: item.anggaran.toString(),
+    tglBerangkat: item.tglBerangkat.toISOString(),
+    tglKembali: item.tglKembali.toISOString(),
+    createdAt: item.createdAt.toISOString(),
+    updatedAt: item.updatedAt.toISOString(),
+    approvals: item.approvals.map((a) => ({
+      ...a,
+      approvedAt: a.approvedAt.toISOString(),
+    })),
+  }))
+
   return (
     <div>
+      {/* Page Header */}
       <div style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        marginBottom: "24px",
+        display: "flex", alignItems: "flex-start",
+        justifyContent: "space-between", marginBottom: "24px",
       }}>
         <div>
-          <h1 style={{
-            fontSize: "22px",
-            fontWeight: 800,
-            color: "#1a1f36",
-            margin: 0,
-          }}>
+          <h1 style={{ fontSize: "22px", fontWeight: 800, color: "#1a1f36", margin: 0, letterSpacing: "-0.3px" }}>
             Daftar SPPD
           </h1>
           <p style={{ fontSize: "13px", color: "#8f95a3", margin: "4px 0 0" }}>
-            Semua pengajuan perjalanan dinas Anda
+            {isAdminOrApprover
+              ? "Semua pengajuan SPPD pegawai"
+              : "Riwayat pengajuan perjalanan dinas Anda"}
           </p>
         </div>
 
-        <Link href="/dashboard/pengajuan" style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "6px",
-          background: "#00205b",
-          color: "#fff",
-          padding: "9px 16px",
-          borderRadius: "10px",
-          textDecoration: "none",
-          fontSize: "13px",
-          fontWeight: 600,
-        }}>
-          + Ajukan SPPD
-        </Link>
+        {!isAdminOrApprover && (
+          <Link href="/dashboard/pengajuan" style={{
+            display: "inline-flex", alignItems: "center", gap: "6px",
+            padding: "10px 18px", borderRadius: "10px",
+            background: "#00205b", color: "#fff",
+            fontSize: "13px", fontWeight: 700,
+            textDecoration: "none",
+          }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Ajukan SPPD
+          </Link>
+        )}
       </div>
 
-      {/* Tabel / konten SPPD */}
-      <div style={{
-        background: "#fff",
-        borderRadius: "12px",
-        border: "1px solid #eef0f4",
-        overflow: "hidden",
-      }}>
-        <div style={{
-          padding: "16px 20px",
-          borderBottom: "1px solid #eef0f4",
-          fontSize: "13px",
-          fontWeight: 600,
-          color: "#1a1f36",
-        }}>
-          Pengajuan Saya
-        </div>
-
-        {/* Empty state sementara */}
-        <div style={{
-          padding: "48px 24px",
-          textAlign: "center",
-          color: "#8f95a3",
-        }}>
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
-            stroke="#c5c9d6" strokeWidth="1.5" style={{ margin: "0 auto 12px" }}>
-            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-            <polyline points="14 2 14 8 20 8"/>
-            <line x1="16" y1="13" x2="8" y2="13"/>
-            <line x1="16" y1="17" x2="8" y2="17"/>
-          </svg>
-          <p style={{ fontSize: "14px", fontWeight: 600, color: "#1a1f36", margin: "0 0 4px" }}>
-            Belum ada SPPD
-          </p>
-          <p style={{ fontSize: "13px", margin: 0 }}>
-            Klik tombol "Ajukan SPPD" untuk membuat pengajuan baru
-          </p>
-        </div>
-      </div>
+      <SppdList data={data} role={session.user.role} />
     </div>
   )
 }

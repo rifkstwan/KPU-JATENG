@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
-import { JenisTransport, StatusSPPD, TipeNotifikasi } from "@prisma/client"
 
 // ── Generate nomor SPPD otomatis: SPPD-2026-001 ──
 async function generateNomorSppd(): Promise<string> {
@@ -41,21 +40,15 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Validasi status enum
-    const validStatus: StatusSPPD[] = ["DRAFT", "PENDING"]
+    // Validasi status
+    const validStatus = ["DRAFT", "PENDING"]
     if (!validStatus.includes(status)) {
       return NextResponse.json({ message: "Status tidak valid" }, { status: 400 })
     }
 
-    // Validasi transport enum
-    const validTransport: JenisTransport[] = ["DARAT", "UDARA", "KERETA", "LAUT"]
-    const transportValue: JenisTransport = validTransport.includes(transport)
-      ? transport
-      : "DARAT"
-
     const nomorSppd = await generateNomorSppd()
 
-    // Simpan ke database — field names sesuai schema
+    // Simpan ke database
     const sppd = await prisma.pengajuanSPPD.create({
       data: {
         nomorSppd,
@@ -64,14 +57,14 @@ export async function POST(req: NextRequest) {
         maksud,
         tglBerangkat: berangkat,
         tglKembali: kembali,
-        transport: transportValue,
+        transport: transport ?? "DARAT",
         anggaran: BigInt(anggaran ?? 0),
         catatan: catatan ?? null,
-        status: status as StatusSPPD,
+        status,
       },
     })
 
-    // Jika PENDING → notifikasi ke semua APPROVER
+    // Jika PENDING → kirim notifikasi ke semua APPROVER
     if (status === "PENDING") {
       const approvers = await prisma.user.findMany({
         where: { role: "APPROVER" },
@@ -84,18 +77,18 @@ export async function POST(req: NextRequest) {
             userId: approver.id,
             sppdId: sppd.id,
             pesan: `Pengajuan SPPD baru dari ${session.user.name ?? "Pegawai"} — ${tujuan} (${nomorSppd}) menunggu review Anda.`,
-            tipe: "PENDING" as TipeNotifikasi,
+            tipe: "PENDING" as const,
           })),
         })
       }
 
-      // Konfirmasi ke pegawai sendiri
+      // Notifikasi ke pegawai sendiri (konfirmasi terkirim)
       await prisma.notifikasi.create({
         data: {
           userId: session.user.id,
           sppdId: sppd.id,
           pesan: `Pengajuan SPPD ${nomorSppd} berhasil dikirim dan sedang menunggu review Approver.`,
-          tipe: "INFO" as TipeNotifikasi,
+          tipe: "INFO" as const,
         },
       })
     }
@@ -110,7 +103,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// ── GET /api/sppd ──
+// ── GET /api/sppd — ambil daftar SPPD milik user login ──
 export async function GET() {
   try {
     const session = await auth()
@@ -123,9 +116,7 @@ export async function GET() {
     const sppd = await prisma.pengajuanSPPD.findMany({
       where: isAdminOrApprover ? {} : { userId: session.user.id },
       include: {
-        user: {
-          select: { nama: true, jabatan: true, divisi: true },
-        },
+        user: { select: { nama: true, jabatan: true, divisi: true } },
         approvals: {
           include: {
             approver: { select: { nama: true } },

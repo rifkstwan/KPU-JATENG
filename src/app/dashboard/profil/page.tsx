@@ -1,20 +1,32 @@
 import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
-import ProfilClient from "./profil-client"
+import { prisma } from "@/lib/prisma"
+import ProfilClient from "./client"
 
 export default async function ProfilPage() {
   const session = await auth()
-  if (!session) redirect("/login")
+  if (!session?.user) redirect("/login")
 
-  const name = session.user.name || "Nama Pengguna"
-  const email = session.user.email || "email@kpu.go.id"
-  const role = (session.user as any).role || "PEGAWAI"
+  const userId = (session.user as { id: string }).id
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true, nama: true, nip: true, email: true,
+      jabatan: true, divisi: true, role: true,
+      createdAt: true,
+      _count: { select: { pengajuan: true } },
+    },
+  })
+
+  if (!user) redirect("/login")
 
   return (
     <ProfilClient
-      name={name}
-      email={email}
-      role={role}
+      user={{
+        ...user,
+        createdAt: user.createdAt.toISOString(),
+      }}
     />
   )
 }

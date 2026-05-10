@@ -9,13 +9,14 @@ declare module "next-auth" {
   }
 
   interface User {
-    role?: string
+    id: string        // ← hapus optional
+    role: string      // ← hapus optional
   }
 }
 
 declare module "next-auth/jwt" {
   interface JWT {
-    id?: string
-    role?: string
+    id: string        // ← hapus optional
+    role: string      // ← hapus optional
   }
 }
