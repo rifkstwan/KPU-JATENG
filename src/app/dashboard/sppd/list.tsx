@@ -97,7 +97,6 @@ export default function SppdList({ data, role }: { data: SppdItem[]; role?: stri
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  // Baca keyword dari URL (?search=...) — terkoneksi dengan topbar search
   const urlSearch = searchParams.get("search") ?? ""
   const [filter, setFilter] = useState("ALL")
   const [search, setSearch] = useState(urlSearch)
@@ -419,6 +418,39 @@ export default function SppdList({ data, role }: { data: SppdItem[]; role?: stri
                             </button>
                           )
                         )}
+
+                        {/* ✅ TOMBOL UNDUH — hanya muncul jika status APPROVED */}
+                        {item.status === "APPROVED" && (
+                          <a
+                            href={`/api/sppd/${item.id}/download`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              padding: "6px 12px", borderRadius: "8px",
+                              border: "1.5px solid #bbf7d0", background: "#f0fdf4",
+                              color: "#16a34a", fontSize: "12px", fontWeight: 600,
+                              textDecoration: "none", display: "inline-flex",
+                              alignItems: "center", gap: "5px",
+                              transition: "all 150ms ease",
+                            }}
+                            onMouseEnter={e => {
+                              e.currentTarget.style.background = "#dcfce7"
+                              e.currentTarget.style.borderColor = "#86efac"
+                            }}
+                            onMouseLeave={e => {
+                              e.currentTarget.style.background = "#f0fdf4"
+                              e.currentTarget.style.borderColor = "#bbf7d0"
+                            }}
+                          >
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                              <polyline points="7 10 12 15 17 10"/>
+                              <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            Unduh
+                          </a>
+                        )}
+
                       </div>
                     </td>
                   </tr>

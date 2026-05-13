@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useTransition } from "react"
-import { useRouter } from "next/navigation"
 import { useRouter, useSearchParams } from "next/navigation"
 
 type PendingItem = {
@@ -210,6 +209,7 @@ export default function ApprovalClient({
   riwayat: RiwayatItem[]
 }) {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [pending, setPending] = useState(initialPending)
   const [riwayat, setRiwayat] = useState(initialRiwayat)
   const [selected, setSelected] = useState<PendingItem | null>(null)
@@ -218,6 +218,8 @@ export default function ApprovalClient({
   const [catatan, setCatatan] = useState("")
   const [actionType, setActionType] = useState<"APPROVED" | "REJECTED" | null>(null)
   const [error, setError] = useState<string | null>(null)
+
+  const _keyword = searchParams.get("search") ?? ""
 
   function openReview(item: PendingItem) {
     setSelected(item)
@@ -348,25 +350,11 @@ export default function ApprovalClient({
                   marginBottom: "14px",
                 }}
               >
-                <svg
-                  width="22"
-                  height="22"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#16a34a"
-                  strokeWidth="2"
-                >
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2">
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
               </div>
-              <div
-                style={{
-                  fontSize: "14px",
-                  fontWeight: 700,
-                  color: "#374151",
-                  marginBottom: "4px",
-                }}
-              >
+              <div style={{ fontSize: "14px", fontWeight: 700, color: "#374151", marginBottom: "4px" }}>
                 Tidak ada antrian
               </div>
               <div style={{ fontSize: "13px", color: "#8f95a3" }}>
@@ -389,9 +377,7 @@ export default function ApprovalClient({
                     transition: "background 120ms ease",
                   }}
                   onMouseEnter={e => (e.currentTarget.style.background = "#fafbfc")}
-                  onMouseLeave={e =>
-                    (e.currentTarget.style.background = "transparent")
-                  }
+                  onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
                 >
                   <div
                     style={{
@@ -411,21 +397,8 @@ export default function ApprovalClient({
                     {getInitials(item.user.nama)}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                        marginBottom: "3px",
-                      }}
-                    >
-                      <span
-                        style={{
-                          fontSize: "14px",
-                          fontWeight: 700,
-                          color: "#1a1f36",
-                        }}
-                      >
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "3px" }}>
+                      <span style={{ fontSize: "14px", fontWeight: 700, color: "#1a1f36" }}>
                         {item.user.nama}
                       </span>
                       {item.user.jabatan && (
@@ -454,20 +427,12 @@ export default function ApprovalClient({
                         flexWrap: "wrap",
                       }}
                     >
-                      <span
-                        style={{
-                          fontWeight: 700,
-                          color: "#00205b",
-                        }}
-                      >
-                        {item.nomorSppd}
-                      </span>
+                      <span style={{ fontWeight: 700, color: "#00205b" }}>{item.nomorSppd}</span>
                       <span style={{ color: "#d1d5db" }}>·</span>
                       <span>{item.tujuan}</span>
                       <span style={{ color: "#d1d5db" }}>·</span>
                       <span>
-                        {formatTanggal(item.tglBerangkat)} —{" "}
-                        {formatTanggal(item.tglKembali)}
+                        {formatTanggal(item.tglBerangkat)} — {formatTanggal(item.tglKembali)}
                       </span>
                       <span
                         style={{
@@ -482,37 +447,17 @@ export default function ApprovalClient({
                         {hariItem} hari
                       </span>
                     </div>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                      }}
-                    >
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                       <TransportBadge transport={item.transport} />
-                      <span
-                        style={{ fontSize: "12px", color: "#8f95a3" }}
-                      >
+                      <span style={{ fontSize: "12px", color: "#8f95a3" }}>
                         {formatRupiah(item.anggaran)}
                       </span>
                     </div>
                   </div>
-                  <div
-                    style={{
-                      fontSize: "11px",
-                      color: "#aab0c0",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
+                  <div style={{ fontSize: "11px", color: "#aab0c0", whiteSpace: "nowrap" }}>
                     {timeAgo(item.createdAt)}
                   </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "6px",
-                      flexShrink: 0,
-                    }}
-                  >
+                  <div style={{ display: "flex", gap: "6px", flexShrink: 0 }}>
                     <button
                       onClick={() => openReview(item)}
                       style={{
@@ -529,97 +474,44 @@ export default function ApprovalClient({
                         gap: "5px",
                         transition: "border-color 150ms ease",
                       }}
-                      onMouseEnter={e =>
-                        (e.currentTarget.style.borderColor = "#00205b")
-                      }
-                      onMouseLeave={e =>
-                        (e.currentTarget.style.borderColor = "#e2e5ec")
-                      }
+                      onMouseEnter={e => (e.currentTarget.style.borderColor = "#00205b")}
+                      onMouseLeave={e => (e.currentTarget.style.borderColor = "#e2e5ec")}
                     >
-                      <svg
-                        width="13"
-                        height="13"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                         <circle cx="12" cy="12" r="3" />
                       </svg>
                       Review
                     </button>
                     <button
-                      onClick={() => {
-                        setSelected(item)
-                        setActionType("APPROVED")
-                      }}
+                      onClick={() => { setSelected(item); setActionType("APPROVED") }}
                       title="Setujui"
                       style={{
-                        width: 34,
-                        height: 34,
-                        borderRadius: "8px",
-                        border: "1.5px solid #bbf7d0",
-                        background: "#f0fdf4",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        cursor: "pointer",
-                        color: "#16a34a",
-                        transition: "background 150ms ease",
+                        width: 34, height: 34, borderRadius: "8px",
+                        border: "1.5px solid #bbf7d0", background: "#f0fdf4",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        cursor: "pointer", color: "#16a34a", transition: "background 150ms ease",
                       }}
-                      onMouseEnter={e =>
-                        (e.currentTarget.style.background = "#dcfce7")
-                      }
-                      onMouseLeave={e =>
-                        (e.currentTarget.style.background = "#f0fdf4")
-                      }
+                      onMouseEnter={e => (e.currentTarget.style.background = "#dcfce7")}
+                      onMouseLeave={e => (e.currentTarget.style.background = "#f0fdf4")}
                     >
-                      <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2.5"
-                      >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                         <polyline points="20 6 9 17 4 12" />
                       </svg>
                     </button>
                     <button
-                      onClick={() => {
-                        setSelected(item)
-                        setActionType("REJECTED")
-                      }}
+                      onClick={() => { setSelected(item); setActionType("REJECTED") }}
                       title="Tolak"
                       style={{
-                        width: 34,
-                        height: 34,
-                        borderRadius: "8px",
-                        border: "1.5px solid #fecaca",
-                        background: "#fef2f2",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        cursor: "pointer",
-                        color: "#dc2626",
-                        transition: "background 150ms ease",
+                        width: 34, height: 34, borderRadius: "8px",
+                        border: "1.5px solid #fecaca", background: "#fef2f2",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        cursor: "pointer", color: "#dc2626", transition: "background 150ms ease",
                       }}
-                      onMouseEnter={e =>
-                        (e.currentTarget.style.background = "#fee2e2")
-                      }
-                      onMouseLeave={e =>
-                        (e.currentTarget.style.background = "#fef2f2")
-                      }
+                      onMouseEnter={e => (e.currentTarget.style.background = "#fee2e2")}
+                      onMouseLeave={e => (e.currentTarget.style.background = "#fef2f2")}
                     >
-                      <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2.5"
-                      >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                         <line x1="18" y1="6" x2="6" y2="18" />
                         <line x1="6" y1="6" x2="18" y2="18" />
                       </svg>
@@ -644,52 +536,22 @@ export default function ApprovalClient({
           }}
         >
           {riwayat.length === 0 ? (
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                padding: "64px 24px",
-              }}
-            >
-              <div
-                style={{
-                  fontSize: "14px",
-                  fontWeight: 600,
-                  color: "#374151",
-                }}
-              >
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "64px 24px" }}>
+              <div style={{ fontSize: "14px", fontWeight: 600, color: "#374151" }}>
                 Belum ada riwayat keputusan
               </div>
             </div>
           ) : (
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
-                <tr
-                  style={{
-                    background: "#f8f9fb",
-                    borderBottom: "1px solid #eef0f4",
-                  }}
-                >
-                  {[
-                    "NOMOR SPPD",
-                    "PEGAWAI",
-                    "TUJUAN",
-                    "ANGGARAN",
-                    "KEPUTUSAN",
-                    "TANGGAL PROSES",
-                  ].map(h => (
+                <tr style={{ background: "#f8f9fb", borderBottom: "1px solid #eef0f4" }}>
+                  {["NOMOR SPPD", "PEGAWAI", "TUJUAN", "ANGGARAN", "KEPUTUSAN", "TANGGAL PROSES"].map(h => (
                     <th
                       key={h}
                       style={{
-                        padding: "11px 16px",
-                        textAlign: "left",
-                        fontSize: "11px",
-                        fontWeight: 700,
-                        color: "#9ca3af",
-                        letterSpacing: "0.06em",
-                        whiteSpace: "nowrap",
+                        padding: "11px 16px", textAlign: "left",
+                        fontSize: "11px", fontWeight: 700,
+                        color: "#9ca3af", letterSpacing: "0.06em", whiteSpace: "nowrap",
                       }}
                     >
                       {h}
@@ -704,119 +566,46 @@ export default function ApprovalClient({
                   return (
                     <tr
                       key={r.id}
-                      style={{
-                        borderBottom: isLast ? "none" : "1px solid #f3f4f6",
-                      }}
-                      onMouseEnter={e =>
-                        (e.currentTarget.style.background = "#fafbfc")
-                      }
-                      onMouseLeave={e =>
-                        (e.currentTarget.style.background = "transparent")
-                      }
+                      style={{ borderBottom: isLast ? "none" : "1px solid #f3f4f6" }}
+                      onMouseEnter={e => (e.currentTarget.style.background = "#fafbfc")}
+                      onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
                     >
                       <td style={{ padding: "13px 16px" }}>
-                        <span
-                          style={{
-                            fontSize: "13px",
-                            fontWeight: 700,
-                            color: "#00205b",
-                          }}
-                        >
+                        <span style={{ fontSize: "13px", fontWeight: 700, color: "#00205b" }}>
                           {r.sppd.nomorSppd}
                         </span>
                       </td>
-                      <td
-                        style={{
-                          padding: "13px 16px",
-                          fontSize: "13px",
-                          color: "#1a1f36",
-                        }}
-                      >
+                      <td style={{ padding: "13px 16px", fontSize: "13px", color: "#1a1f36" }}>
                         {r.sppd.user.nama}
                       </td>
-                      <td
-                        style={{
-                          padding: "13px 16px",
-                          fontSize: "13px",
-                          color: "#6b7280",
-                        }}
-                      >
+                      <td style={{ padding: "13px 16px", fontSize: "13px", color: "#6b7280" }}>
                         {r.sppd.tujuan}
                       </td>
-                      <td
-                        style={{
-                          padding: "13px 16px",
-                          fontSize: "13px",
-                          fontWeight: 600,
-                          color: "#1a1f36",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
+                      <td style={{ padding: "13px 16px", fontSize: "13px", fontWeight: 600, color: "#1a1f36", whiteSpace: "nowrap" }}>
                         {formatRupiah(r.sppd.anggaran)}
                       </td>
                       <td style={{ padding: "13px 16px" }}>
-                        <div
-                          style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: "3px",
-                          }}
-                        >
+                        <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
                           <span
                             style={{
-                              display: "inline-flex",
-                              alignItems: "center",
-                              gap: "5px",
-                              padding: "3px 10px",
-                              borderRadius: "20px",
-                              background: isApproved
-                                ? "#f0fdf4"
-                                : "#fef2f2",
-                              color: isApproved
-                                ? "#16a34a"
-                                : "#dc2626",
-                              fontSize: "11.5px",
-                              fontWeight: 700,
-                              width: "fit-content",
+                              display: "inline-flex", alignItems: "center", gap: "5px",
+                              padding: "3px 10px", borderRadius: "20px",
+                              background: isApproved ? "#f0fdf4" : "#fef2f2",
+                              color: isApproved ? "#16a34a" : "#dc2626",
+                              fontSize: "11.5px", fontWeight: 700, width: "fit-content",
                             }}
                           >
-                            <span
-                              style={{
-                                width: 5,
-                                height: 5,
-                                borderRadius: "50%",
-                                background: isApproved
-                                  ? "#22c55e"
-                                  : "#ef4444",
-                              }}
-                            />
+                            <span style={{ width: 5, height: 5, borderRadius: "50%", background: isApproved ? "#22c55e" : "#ef4444" }} />
                             {isApproved ? "Disetujui" : "Ditolak"}
                           </span>
                           {r.catatan && (
-                            <span
-                              style={{
-                                fontSize: "11px",
-                                color: "#8f95a3",
-                                fontStyle: "italic",
-                                maxWidth: "200px",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                whiteSpace: "nowrap",
-                              }}
-                            >
-                              "{r.catatan}"
+                            <span style={{ fontSize: "11px", color: "#8f95a3", fontStyle: "italic", maxWidth: "200px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                              &quot;{r.catatan}&quot;
                             </span>
                           )}
                         </div>
                       </td>
-                      <td
-                        style={{
-                          padding: "13px 16px",
-                          fontSize: "12px",
-                          color: "#6b7280",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
+                      <td style={{ padding: "13px 16px", fontSize: "12px", color: "#6b7280", whiteSpace: "nowrap" }}>
                         {formatTanggal(r.approvedAt)}
                       </td>
                     </tr>
@@ -832,164 +621,83 @@ export default function ApprovalClient({
       {selected && (
         <div
           style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 50,
-            background: "rgba(0,0,0,0.45)",
-            backdropFilter: "blur(4px)",
-            display: "flex",
-            alignItems: "flex-start",
-            justifyContent: "center",
-            overflowY: "auto",
-            padding: "88px 20px 24px",
-            boxSizing: "border-box",
+            position: "fixed", inset: 0, zIndex: 50,
+            background: "rgba(0,0,0,0.45)", backdropFilter: "blur(4px)",
+            display: "flex", alignItems: "flex-start", justifyContent: "center",
+            overflowY: "auto", padding: "88px 20px 24px", boxSizing: "border-box",
           }}
           onClick={e => e.target === e.currentTarget && closeModal()}
         >
           <div
             style={{
-              background: "#fff",
-              borderRadius: "20px",
-              width: "100%",
-              maxWidth: "540px",
+              background: "#fff", borderRadius: "20px",
+              width: "100%", maxWidth: "540px",
               boxShadow: "0 24px 64px rgba(0,0,0,0.18)",
-              maxHeight: "calc(100vh - 112px)",
-              overflow: "hidden",
-              display: "flex",
-              flexDirection: "column",
-              flexShrink: 0,
+              maxHeight: "calc(100vh - 112px)", overflow: "hidden",
+              display: "flex", flexDirection: "column", flexShrink: 0,
             }}
           >
-            {/* Header */}
+            {/* Modal Header */}
             <div
               style={{
-                padding: "20px 24px",
-                borderBottom: "1px solid #eef0f4",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                position: "sticky",
-                top: 0,
-                background: "#fff",
-                zIndex: 1,
-                borderRadius: "20px 20px 0 0",
-                flexShrink: 0,
+                padding: "20px 24px", borderBottom: "1px solid #eef0f4",
+                display: "flex", alignItems: "center", justifyContent: "space-between",
+                position: "sticky", top: 0, background: "#fff", zIndex: 1,
+                borderRadius: "20px 20px 0 0", flexShrink: 0,
               }}
             >
               <div>
-                <div
-                  style={{
-                    fontSize: "16px",
-                    fontWeight: 800,
-                    color: "#1a1f36",
-                  }}
-                >
+                <div style={{ fontSize: "16px", fontWeight: 800, color: "#1a1f36" }}>
                   {selected.nomorSppd}
                 </div>
-                <div
-                  style={{
-                    fontSize: "12px",
-                    color: "#8f95a3",
-                    marginTop: "2px",
-                  }}
-                >
+                <div style={{ fontSize: "12px", color: "#8f95a3", marginTop: "2px" }}>
                   Review Pengajuan SPPD
                 </div>
               </div>
-
               <button
                 onClick={closeModal}
                 style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: "8px",
-                  border: "1.5px solid #e2e5ec",
-                  background: "#fff",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "#6b7280",
-                  flexShrink: 0,
+                  width: 32, height: 32, borderRadius: "8px",
+                  border: "1.5px solid #e2e5ec", background: "#fff",
+                  cursor: "pointer", display: "flex", alignItems: "center",
+                  justifyContent: "center", color: "#6b7280", flexShrink: 0,
                 }}
               >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <line x1="18" y1="6" x2="6" y2="18" />
                   <line x1="6" y1="6" x2="18" y2="18" />
                 </svg>
               </button>
             </div>
 
-            {/* Body */}
-            <div
-              style={{
-                padding: "20px 24px 24px",
-                overflowY: "auto",
-              }}
-            >
+            {/* Modal Body */}
+            <div style={{ padding: "20px 24px 24px", overflowY: "auto" }}>
               {/* Pengaju Card */}
               <div
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "12px",
-                  padding: "14px",
-                  borderRadius: "12px",
-                  background: "#f8f9fb",
-                  border: "1px solid #eef0f4",
-                  marginBottom: "20px",
+                  display: "flex", alignItems: "center", gap: "12px",
+                  padding: "14px", borderRadius: "12px",
+                  background: "#f8f9fb", border: "1px solid #eef0f4", marginBottom: "20px",
                 }}
               >
                 <div
                   style={{
-                    width: 44,
-                    height: 44,
-                    borderRadius: "12px",
-                    background: "#00205b",
-                    color: "#fff",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: "14px",
-                    fontWeight: 700,
-                    flexShrink: 0,
+                    width: 44, height: 44, borderRadius: "12px",
+                    background: "#00205b", color: "#fff",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: "14px", fontWeight: 700, flexShrink: 0,
                   }}
                 >
                   {getInitials(selected.user.nama)}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div
-                    style={{
-                      fontSize: "14px",
-                      fontWeight: 700,
-                      color: "#1a1f36",
-                    }}
-                  >
+                  <div style={{ fontSize: "14px", fontWeight: 700, color: "#1a1f36" }}>
                     {selected.user.nama}
                   </div>
-                  <div
-                    style={{
-                      fontSize: "12px",
-                      color: "#8f95a3",
-                      marginTop: "2px",
-                      lineHeight: 1.5,
-                    }}
-                  >
-                    {[selected.user.jabatan, selected.user.divisi]
-                      .filter(Boolean)
-                      .join(" · ")}
+                  <div style={{ fontSize: "12px", color: "#8f95a3", marginTop: "2px", lineHeight: 1.5 }}>
+                    {[selected.user.jabatan, selected.user.divisi].filter(Boolean).join(" · ")}
                     {selected.user.nip && (
-                      <span style={{ color: "#aab0c0" }}>
-                        {" "}
-                        · NIP: {selected.user.nip}
-                      </span>
+                      <span style={{ color: "#aab0c0" }}> · NIP: {selected.user.nip}</span>
                     )}
                   </div>
                 </div>
@@ -998,65 +706,24 @@ export default function ApprovalClient({
               {/* Info Grid */}
               <div
                 style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
-                  borderRadius: "12px",
-                  boxShadow: "0 0 0 1px #eef0f4",
-                  overflow: "hidden",
-                  marginBottom: "16px",
+                  display: "grid", gridTemplateColumns: "1fr 1fr",
+                  borderRadius: "12px", boxShadow: "0 0 0 1px #eef0f4",
+                  overflow: "hidden", marginBottom: "16px",
                 }}
               >
-                <InfoCell
-                  label="KOTA TUJUAN"
-                  value={selected.tujuan}
-                  icon={IconPin}
-                />
-                <InfoCell
-                  label="TRANSPORTASI"
-                  valueNode={<TransportBadge transport={selected.transport} />}
-                  icon={IconTransport}
-                  noBorderRight
-                />
-                <InfoCell
-                  label="TGL BERANGKAT"
-                  value={formatTanggal(selected.tglBerangkat)}
-                  icon={IconCalendar}
-                />
-                <InfoCell
-                  label="TGL KEMBALI"
-                  value={formatTanggal(selected.tglKembali)}
-                  icon={IconCalendar}
-                  noBorderRight
-                />
+                <InfoCell label="KOTA TUJUAN" value={selected.tujuan} icon={IconPin} />
+                <InfoCell label="TRANSPORTASI" valueNode={<TransportBadge transport={selected.transport} />} icon={IconTransport} noBorderRight />
+                <InfoCell label="TGL BERANGKAT" value={formatTanggal(selected.tglBerangkat)} icon={IconCalendar} />
+                <InfoCell label="TGL KEMBALI" value={formatTanggal(selected.tglKembali)} icon={IconCalendar} noBorderRight />
                 <InfoCell
                   label="DURASI"
                   noBorderBottom
                   icon={IconClock}
                   valueNode={
-                    <span
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        fontSize: "13px",
-                        fontWeight: 700,
-                        color:
-                          hariSelected > 3 ? "#d97706" : "#1a1f36",
-                      }}
-                    >
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "13px", fontWeight: 700, color: hariSelected > 3 ? "#d97706" : "#1a1f36" }}>
                       {hariSelected} hari
                       {hariSelected > 3 && (
-                        <span
-                          style={{
-                            fontSize: "10px",
-                            color: "#d97706",
-                            background: "#fffbeb",
-                            border: "1px solid #fde68a",
-                            padding: "1px 5px",
-                            borderRadius: "4px",
-                            fontWeight: 600,
-                          }}
-                        >
+                        <span style={{ fontSize: "10px", color: "#d97706", background: "#fffbeb", border: "1px solid #fde68a", padding: "1px 5px", borderRadius: "4px", fontWeight: 600 }}>
                           Panjang
                         </span>
                       )}
@@ -1065,17 +732,10 @@ export default function ApprovalClient({
                 />
                 <InfoCell
                   label="ESTIMASI ANGGARAN"
-                  noBorderRight
-                  noBorderBottom
+                  noBorderRight noBorderBottom
                   icon={IconMoney}
                   valueNode={
-                    <span
-                      style={{
-                        fontSize: "13px",
-                        fontWeight: 700,
-                        color: "#1a1f36",
-                      }}
-                    >
+                    <span style={{ fontSize: "13px", fontWeight: 700, color: "#1a1f36" }}>
                       {formatRupiah(selected.anggaran)}
                     </span>
                   }
@@ -1084,28 +744,10 @@ export default function ApprovalClient({
 
               {/* Keperluan */}
               <div style={{ marginBottom: "12px" }}>
-                <div
-                  style={{
-                    fontSize: "11px",
-                    color: "#8f95a3",
-                    fontWeight: 600,
-                    letterSpacing: "0.04em",
-                    marginBottom: "6px",
-                  }}
-                >
+                <div style={{ fontSize: "11px", color: "#8f95a3", fontWeight: 600, letterSpacing: "0.04em", marginBottom: "6px" }}>
                   KEPERLUAN
                 </div>
-                <div
-                  style={{
-                    fontSize: "13px",
-                    color: "#1a1f36",
-                    lineHeight: 1.65,
-                    background: "#f9fafb",
-                    padding: "11px 14px",
-                    borderRadius: "10px",
-                    border: "1px solid #eef0f4",
-                  }}
-                >
+                <div style={{ fontSize: "13px", color: "#1a1f36", lineHeight: 1.65, background: "#f9fafb", padding: "11px 14px", borderRadius: "10px", border: "1px solid #eef0f4" }}>
                   {selected.maksud}
                 </div>
               </div>
@@ -1113,77 +755,29 @@ export default function ApprovalClient({
               {/* Catatan Pengaju */}
               {selected.catatan && (
                 <div style={{ marginBottom: "16px" }}>
-                  <div
-                    style={{
-                      fontSize: "11px",
-                      color: "#8f95a3",
-                      fontWeight: 600,
-                      letterSpacing: "0.04em",
-                      marginBottom: "6px",
-                    }}
-                  >
+                  <div style={{ fontSize: "11px", color: "#8f95a3", fontWeight: 600, letterSpacing: "0.04em", marginBottom: "6px" }}>
                     CATATAN PENGAJU
                   </div>
-                  <div
-                    style={{
-                      fontSize: "13px",
-                      color: "#1a1f36",
-                      lineHeight: 1.65,
-                      background: "#f9fafb",
-                      padding: "11px 14px",
-                      borderRadius: "10px",
-                      border: "1px solid #eef0f4",
-                      fontStyle: "italic",
-                    }}
-                  >
+                  <div style={{ fontSize: "13px", color: "#1a1f36", lineHeight: 1.65, background: "#f9fafb", padding: "11px 14px", borderRadius: "10px", border: "1px solid #eef0f4", fontStyle: "italic" }}>
                     {selected.catatan}
                   </div>
                 </div>
               )}
 
-              <div
-                style={{
-                  borderTop: "1px solid #eef0f4",
-                  margin: "16px 0",
-                }}
-              />
+              <div style={{ borderTop: "1px solid #eef0f4", margin: "16px 0" }} />
 
               {/* Catatan Keputusan */}
               <div style={{ marginBottom: "16px" }}>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "6px",
-                    marginBottom: "6px",
-                  }}
-                >
-                  <label
-                    style={{
-                      fontSize: "12px",
-                      fontWeight: 600,
-                      color: "#374151",
-                    }}
-                  >
+                <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "6px" }}>
+                  <label style={{ fontSize: "12px", fontWeight: 600, color: "#374151" }}>
                     CATATAN KEPUTUSAN
                   </label>
                   {actionType === "REJECTED" && (
-                    <span
-                      style={{
-                        fontSize: "11px",
-                        color: "#dc2626",
-                        background: "#fef2f2",
-                        border: "1px solid #fecaca",
-                        padding: "1px 7px",
-                        borderRadius: "4px",
-                        fontWeight: 600,
-                      }}
-                    >
+                    <span style={{ fontSize: "11px", color: "#dc2626", background: "#fef2f2", border: "1px solid #fecaca", padding: "1px 7px", borderRadius: "4px", fontWeight: 600 }}>
                       Wajib diisi
                     </span>
                   )}
                 </div>
-
                 <textarea
                   value={catatan}
                   onChange={e => setCatatan(e.target.value)}
@@ -1194,31 +788,14 @@ export default function ApprovalClient({
                       : "Catatan tambahan untuk pengaju (opsional)"
                   }
                   style={{
-                    width: "100%",
-                    padding: "10px 12px",
-                    borderRadius: "10px",
-                    border: `1.5px solid ${
-                      actionType === "REJECTED" &&
-                      !catatan.trim() &&
-                      error
-                        ? "#fca5a5"
-                        : "#e2e5ec"
-                    }`,
-                    fontSize: "13px",
-                    outline: "none",
-                    fontFamily: "inherit",
-                    resize: "vertical",
-                    lineHeight: 1.6,
-                    boxSizing: "border-box",
-                    color: "#1a1f36",
-                    transition: "border-color 150ms ease",
+                    width: "100%", padding: "10px 12px", borderRadius: "10px",
+                    border: `1.5px solid ${actionType === "REJECTED" && !catatan.trim() && error ? "#fca5a5" : "#e2e5ec"}`,
+                    fontSize: "13px", outline: "none", fontFamily: "inherit",
+                    resize: "vertical", lineHeight: 1.6, boxSizing: "border-box",
+                    color: "#1a1f36", transition: "border-color 150ms ease",
                   }}
-                  onFocus={e =>
-                    (e.currentTarget.style.borderColor = "#00205b")
-                  }
-                  onBlur={e =>
-                    (e.currentTarget.style.borderColor = "#e2e5ec")
-                  }
+                  onFocus={e => (e.currentTarget.style.borderColor = "#00205b")}
+                  onBlur={e => (e.currentTarget.style.borderColor = "#e2e5ec")}
                 />
               </div>
 
@@ -1226,27 +803,13 @@ export default function ApprovalClient({
               {error && (
                 <div
                   style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    padding: "10px 14px",
-                    borderRadius: "8px",
-                    marginBottom: "14px",
-                    background: "#fef2f2",
-                    color: "#dc2626",
-                    fontSize: "13px",
-                    fontWeight: 600,
-                    border: "1px solid #fecaca",
+                    display: "flex", alignItems: "center", gap: "8px",
+                    padding: "10px 14px", borderRadius: "8px", marginBottom: "14px",
+                    background: "#fef2f2", color: "#dc2626", fontSize: "13px",
+                    fontWeight: 600, border: "1px solid #fecaca",
                   }}
                 >
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                  >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                     <circle cx="12" cy="12" r="10" />
                     <line x1="12" y1="8" x2="12" y2="12" />
                     <line x1="12" y1="16" x2="12.01" y2="16" />
@@ -1256,89 +819,43 @@ export default function ApprovalClient({
               )}
 
               {/* Action Buttons */}
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
-                  gap: "10px",
-                }}
-              >
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
                 <button
                   onClick={() => handleKeputusan("REJECTED")}
                   disabled={isPending}
                   style={{
-                    padding: "11px 16px",
-                    borderRadius: "10px",
-                    border: "1.5px solid #fecaca",
-                    background: "#fff",
-                    color: "#dc2626",
-                    fontSize: "13px",
-                    fontWeight: 700,
+                    padding: "11px 16px", borderRadius: "10px",
+                    border: "1.5px solid #fecaca", background: "#fff",
+                    color: "#dc2626", fontSize: "13px", fontWeight: 700,
                     cursor: isPending ? "not-allowed" : "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "7px",
-                    transition: "background 150ms ease",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    gap: "7px", transition: "background 150ms ease",
                     opacity: isPending ? 0.6 : 1,
                   }}
-                  onMouseEnter={e => {
-                    if (!isPending)
-                      e.currentTarget.style.background = "#fef2f2"
-                  }}
-                  onMouseLeave={e =>
-                    (e.currentTarget.style.background = "#fff")
-                  }
+                  onMouseEnter={e => { if (!isPending) e.currentTarget.style.background = "#fef2f2" }}
+                  onMouseLeave={e => (e.currentTarget.style.background = "#fff")}
                 >
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                  >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                     <line x1="18" y1="6" x2="6" y2="18" />
                     <line x1="6" y1="6" x2="18" y2="18" />
                   </svg>
                   Tolak Pengajuan
                 </button>
-
                 <button
                   onClick={() => handleKeputusan("APPROVED")}
                   disabled={isPending}
                   style={{
-                    padding: "11px 16px",
-                    borderRadius: "10px",
+                    padding: "11px 16px", borderRadius: "10px",
                     background: isPending ? "#93a8d4" : "#00205b",
-                    color: "#fff",
-                    fontSize: "13px",
-                    fontWeight: 700,
-                    border: "none",
-                    cursor: isPending ? "not-allowed" : "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "7px",
-                    transition: "background 150ms ease",
+                    color: "#fff", fontSize: "13px", fontWeight: 700,
+                    border: "none", cursor: isPending ? "not-allowed" : "pointer",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    gap: "7px", transition: "background 150ms ease",
                   }}
-                  onMouseEnter={e => {
-                    if (!isPending)
-                      e.currentTarget.style.background = "#003d9e"
-                  }}
-                  onMouseLeave={e => {
-                    if (!isPending)
-                      e.currentTarget.style.background = "#00205b"
-                  }}
+                  onMouseEnter={e => { if (!isPending) e.currentTarget.style.background = "#003d9e" }}
+                  onMouseLeave={e => { if (!isPending) e.currentTarget.style.background = "#00205b" }}
                 >
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                  >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                     <polyline points="20 6 9 17 4 12" />
                   </svg>
                   {isPending ? "Memproses..." : "Setujui Pengajuan"}
