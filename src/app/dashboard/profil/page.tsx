@@ -1,21 +1,26 @@
 import { auth } from "@/lib/auth"
-import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
+import { redirect } from "next/navigation"
 import ProfilClient from "./client"
 
 export default async function ProfilPage() {
   const session = await auth()
   if (!session?.user) redirect("/login")
 
-  const userId = (session.user as { id: string }).id
+  const userId = session.user.id as string
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: {
-      id: true, nama: true, nip: true, email: true,
-      jabatan: true, divisi: true, role: true,
+      id: true,
+      nama: true,
+      email: true,
+      nip: true,
+      jabatan: true,
+      divisi: true,
+      role: true,
+      foto: true,
       createdAt: true,
-      _count: { select: { pengajuan: true } },
     },
   })
 
@@ -24,7 +29,14 @@ export default async function ProfilPage() {
   return (
     <ProfilClient
       user={{
-        ...user,
+        id: user.id,
+        nama: user.nama,
+        email: user.email,
+        nip: user.nip ?? "",
+        jabatan: user.jabatan ?? "",
+        divisi: user.divisi ?? "",
+        role: user.role,
+        foto: user.foto ?? null,
         createdAt: user.createdAt.toISOString(),
       }}
     />

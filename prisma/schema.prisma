@@ -54,6 +54,7 @@ model User {
   role      Role     @default(PEGAWAI)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  foto      String? // URL foto profil
 
   pengajuan  PengajuanSPPD[] @relation("PengajuSPPD")
   approvals  Approval[]      @relation("ApproverSPPD")

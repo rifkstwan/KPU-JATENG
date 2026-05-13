@@ -125,7 +125,7 @@ async function PegawaiDashboard({ userId, nama }: { userId: string; nama: string
         <div style={{ position: "absolute", right: 40, bottom: -40, width: 100, height: 100, borderRadius: "50%", background: "rgba(255,255,255,0.06)" }} />
         <div style={{ position: "relative" }}>
           <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.65)", marginBottom: "6px" }}>
-            {greeting}, 👋
+            {greeting},
           </div>
           <div style={{ fontSize: "22px", fontWeight: 800, color: "#fff", marginBottom: "8px" }}>
             {nama}
@@ -134,8 +134,8 @@ async function PegawaiDashboard({ userId, nama }: { userId: string; nama: string
             {pending > 0
               ? `Kamu punya ${pending} pengajuan SPPD sedang menunggu persetujuan.`
               : approved > 0
-              ? `${approved} SPPD kamu telah disetujui. Perjalanan dinas siap dilaksanakan!`
-              : "Belum ada pengajuan SPPD. Yuk ajukan sekarang!"}
+              ? `${approved} SPPD kamu telah disetujui. Perjalanan dinas siap dilaksanakan.`
+              : "Belum ada pengajuan SPPD. Ajukan sekarang."}
           </div>
           <Link href="/dashboard/pengajuan" style={{
             display: "inline-flex", alignItems: "center", gap: "6px",
@@ -294,7 +294,9 @@ async function ApproverDashboard({ userId, nama }: { userId: string; nama: strin
       }}>
         <div style={{ position: "absolute", right: -20, top: -20, width: 160, height: 160, borderRadius: "50%", background: "rgba(255,255,255,0.04)" }} />
         <div style={{ position: "relative" }}>
-          <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.65)", marginBottom: "6px" }}>{greeting}, 👋</div>
+          <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.65)", marginBottom: "6px" }}>
+            {greeting},
+          </div>
           <div style={{ fontSize: "22px", fontWeight: 800, color: "#fff", marginBottom: "8px" }}>{nama}</div>
           <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.7)", marginBottom: "20px" }}>
             {pendingCount > 0
@@ -342,7 +344,7 @@ async function ApproverDashboard({ userId, nama }: { userId: string; nama: strin
           }}>
             <div style={{ fontSize: "14px", fontWeight: 700, color: "#1a1f36" }}>Antrian Terbaru</div>
             <Link href="/dashboard/approval" style={{ fontSize: "12px", color: "#00205b", fontWeight: 600, textDecoration: "none" }}>
-              Lihat semua →
+              Lihat semua
             </Link>
           </div>
           {pendingList.length === 0 ? (
@@ -480,7 +482,9 @@ async function AdminDashboard({ nama }: { nama: string }) {
         <div style={{ position: "absolute", right: -20, top: -20, width: 160, height: 160, borderRadius: "50%", background: "rgba(255,255,255,0.04)" }} />
         <div style={{ position: "absolute", right: 40, bottom: -40, width: 100, height: 100, borderRadius: "50%", background: "rgba(255,255,255,0.06)" }} />
         <div style={{ position: "relative" }}>
-          <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.65)", marginBottom: "6px" }}>{greeting}, 👋</div>
+          <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.65)", marginBottom: "6px" }}>
+            {greeting},
+          </div>
           <div style={{ fontSize: "22px", fontWeight: 800, color: "#fff", marginBottom: "8px" }}>{nama}</div>
           <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.7)", marginBottom: "20px" }}>
             Sistem SPPD KPU Jawa Tengah — {totalUser} pengguna aktif, {pending} pengajuan menunggu.
@@ -555,7 +559,10 @@ async function AdminDashboard({ nama }: { nama: string }) {
             fontSize: "12px", color: "#00205b", fontWeight: 600,
             textDecoration: "none", display: "flex", alignItems: "center", gap: "4px",
           }}>
-            Lihat Laporan →
+            Lihat Laporan
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
           </Link>
         </div>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>

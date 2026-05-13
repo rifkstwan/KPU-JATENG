@@ -2,7 +2,10 @@ import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+export async function POST(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   const session = await auth()
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
@@ -10,6 +13,8 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   if (!["APPROVER", "ADMIN"].includes(role)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 })
   }
+
+  const { id } = await params
 
   const { keputusan, catatan } = await req.json()
 
@@ -21,35 +26,40 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   }
 
   const sppd = await prisma.pengajuanSPPD.findFirst({
-    where: { id: params.id, status: "PENDING" },
+    where: { id, status: "PENDING" },
     include: { user: { select: { id: true, nama: true } } },
   })
   if (!sppd) return NextResponse.json({ error: "Pengajuan tidak ditemukan atau sudah diproses" }, { status: 404 })
 
-  const [approval] = await prisma.$transaction([
-    prisma.approval.create({
-      data: {
-        sppdId: params.id,
-        approverId,
-        keputusan,
-        catatan: catatan?.trim() || null,
-      },
-    }),
-    prisma.pengajuanSPPD.update({
-      where: { id: params.id },
-      data: { status: keputusan },
-    }),
-    prisma.notifikasi.create({
-      data: {
-        userId: sppd.user.id,
-        sppdId: params.id,
-        pesan: keputusan === "APPROVED"
-          ? `Pengajuan SPPD ${sppd.nomorSppd} Anda telah disetujui.`
-          : `Pengajuan SPPD ${sppd.nomorSppd} Anda ditolak.${catatan ? ` Alasan: ${catatan}` : ""}`,
-        tipe: keputusan,
-      },
-    }),
-  ])
+  try {
+    const [approval] = await prisma.$transaction([
+      prisma.approval.create({
+        data: {
+          sppdId: id,
+          approverId,
+          keputusan,
+          catatan: catatan?.trim() || null,
+        },
+      }),
+      prisma.pengajuanSPPD.update({
+        where: { id },
+        data: { status: keputusan },
+      }),
+      prisma.notifikasi.create({
+        data: {
+          userId: sppd.user.id,
+          sppdId: id,
+          pesan: keputusan === "APPROVED"
+            ? `Pengajuan SPPD ${sppd.nomorSppd} Anda telah disetujui.`
+            : `Pengajuan SPPD ${sppd.nomorSppd} Anda ditolak.${catatan ? ` Alasan: ${catatan}` : ""}`,
+          tipe: keputusan,
+        },
+      }),
+    ])
 
-  return NextResponse.json({ ok: true, approvalId: approval.id })
+    return NextResponse.json({ ok: true, approvalId: approval.id })
+  } catch (err) {
+    console.error("[APPROVAL ERROR]", err)
+    return NextResponse.json({ error: "Terjadi kesalahan server" }, { status: 500 })
+  }
 }
