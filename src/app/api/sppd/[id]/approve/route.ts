@@ -1,56 +1,60 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
 import { StatusSPPD } from "@prisma/client"
 
-// ── PATCH /api/sppd/[id] — Approval keputusan ──
 export async function PATCH(
-  req: Request,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await auth()
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  const { id } = await params
 
-  const { keputusan, approverId } = await req.json()
+  try {
+    const session = await auth()
+    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
-  // Simpan record approval
-  await prisma.approval.create({
-    data: {
-      sppdId: params.id,
-      approverId,
-      keputusan: keputusan as StatusSPPD,
-    },
-  })
+    const { keputusan, approverId } = await req.json()
 
-  // Update status pengajuan
-  const updated = await prisma.pengajuanSPPD.update({
-    where: { id: params.id },
-    data: { status: keputusan as StatusSPPD },
-  })
+    await prisma.approval.create({
+      data: {
+        sppdId: id,
+        approverId,
+        keputusan: keputusan as StatusSPPD,
+      },
+    })
 
-  // Kirim notifikasi ke pemohon
-  const pesan =
-    keputusan === "APPROVED"
-      ? `SPPD ${updated.nomorSppd} kamu telah disetujui ✅`
-      : `SPPD ${updated.nomorSppd} kamu ditolak ❌`
+    const updated = await prisma.pengajuanSPPD.update({
+      where: { id },
+      data: { status: keputusan as StatusSPPD },
+    })
 
-  await prisma.notifikasi.create({
-    data: {
-      userId: updated.userId,
-      sppdId: params.id,
-      pesan,
-      tipe: keputusan === "APPROVED" ? "APPROVED" : "REJECTED",
-    },
-  })
+    const pesan =
+      keputusan === "APPROVED"
+        ? `SPPD ${updated.nomorSppd} kamu telah disetujui`
+        : `SPPD ${updated.nomorSppd} kamu ditolak`
 
-  return NextResponse.json(updated)
+    await prisma.notifikasi.create({
+      data: {
+        userId: updated.userId,
+        sppdId: id,
+        pesan,
+        tipe: keputusan === "APPROVED" ? "APPROVED" : "REJECTED",
+      },
+    })
+
+    return NextResponse.json(updated)
+  } catch (error) {
+    console.error("[PATCH /api/sppd/:id/approve]", error)
+    return NextResponse.json({ message: "Terjadi kesalahan server" }, { status: 500 })
+  }
 }
 
-// ── DELETE /api/sppd/[id] — Hapus SPPD berstatus DRAFT ──
 export async function DELETE(
-  _req: Request,
-  { params }: { params: { id: string } }
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
+
   try {
     const session = await auth()
     if (!session?.user?.id) {
@@ -58,19 +62,17 @@ export async function DELETE(
     }
 
     const sppd = await prisma.pengajuanSPPD.findUnique({
-      where: { id: params.id },
+      where: { id },
     })
 
     if (!sppd) {
       return NextResponse.json({ message: "SPPD tidak ditemukan" }, { status: 404 })
     }
 
-    // Hanya pemilik atau ADMIN yang bisa hapus
-    if (sppd.userId !== session.user.id && session.user.role !== "ADMIN") {
+    if (sppd.userId !== session.user.id && (session.user as { role?: string }).role !== "ADMIN") {
       return NextResponse.json({ message: "Forbidden" }, { status: 403 })
     }
 
-    // Hanya DRAFT yang bisa dihapus
     if (sppd.status !== "DRAFT") {
       return NextResponse.json(
         { message: "Hanya SPPD berstatus Draft yang bisa dihapus" },
@@ -78,11 +80,11 @@ export async function DELETE(
       )
     }
 
-    await prisma.pengajuanSPPD.delete({ where: { id: params.id } })
+    await prisma.pengajuanSPPD.delete({ where: { id } })
 
     return NextResponse.json({ message: "Berhasil dihapus" })
   } catch (error) {
-    console.error("[DELETE /api/sppd/:id]", error)
+    console.error("[DELETE /api/sppd/:id/approve]", error)
     return NextResponse.json({ message: "Terjadi kesalahan server" }, { status: 500 })
   }
 }

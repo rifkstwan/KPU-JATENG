@@ -1,8 +1,12 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params
   const session = await auth()
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
@@ -11,7 +15,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   const { tujuan, maksud, tglBerangkat, tglKembali, transport, anggaran, catatan } = body
 
   const existing = await prisma.pengajuanSPPD.findFirst({
-    where: { id: params.id, userId },
+    where: { id, userId },
   })
   if (!existing) return NextResponse.json({ error: "Tidak ditemukan" }, { status: 404 })
   if (existing.status !== "DRAFT" && existing.status !== "REJECTED") {
@@ -19,7 +23,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   }
 
   const updated = await prisma.pengajuanSPPD.update({
-    where: { id: params.id },
+    where: { id },
     data: {
       tujuan: tujuan.trim(),
       maksud: maksud.trim(),
@@ -42,16 +46,20 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   })
 }
 
-export async function DELETE(_: Request, { params }: { params: { id: string } }) {
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params
   const session = await auth()
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   const userId = (session.user as { id: string }).id
   const existing = await prisma.pengajuanSPPD.findFirst({
-    where: { id: params.id, userId, status: "DRAFT" },
+    where: { id, userId, status: "DRAFT" },
   })
   if (!existing) return NextResponse.json({ error: "Tidak ditemukan / bukan DRAFT" }, { status: 404 })
 
-  await prisma.pengajuanSPPD.delete({ where: { id: params.id } })
+  await prisma.pengajuanSPPD.delete({ where: { id } })
   return NextResponse.json({ ok: true })
 }
