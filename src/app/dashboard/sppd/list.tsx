@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
+import { useState, useEffect } from "react"
 
 type Approval = {
   id: string
@@ -97,9 +98,14 @@ export default function SppdList({ data, role }: { data: SppdItem[]; role?: stri
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  const urlSearch = searchParams.get("search") ?? ""
-  const [filter, setFilter] = useState("ALL")
-  const [search, setSearch] = useState(urlSearch)
+const urlSearch = searchParams.get("search") ?? ""
+const [filter, setFilter] = useState("ALL")
+const [search, setSearch] = useState(urlSearch)
+
+// sync search dari URL (topbar)
+useEffect(() => {
+  setSearch(urlSearch)
+}, [urlSearch])
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [confirmId, setConfirmId] = useState<string | null>(null)
 
