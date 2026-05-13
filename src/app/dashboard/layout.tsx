@@ -1,5 +1,6 @@
 import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
+import { prisma } from "@/lib/prisma"   // <-- tambahkan di sini
 import { SignOutButton } from "@/components/sign-out-button"
 import NotifBell from "@/components/notif-bell"
 import NavLink from "@/components/nav-link"
@@ -112,10 +113,13 @@ export default async function DashboardLayout({
   const items = navItems[role] || navItems.PEGAWAI
 
   const nama = session.user?.name || "User"
-  const image =
-    (session.user as { image?: string | null; foto?: string | null })?.image ??
-    (session.user as { foto?: string | null })?.foto ??
-    null
+
+// Ambil foto langsung dari DB supaya selalu up-to-date
+const userDb = await prisma.user.findUnique({
+  where: { id: session.user.id },
+  select: { foto: true },
+})
+const image = userDb?.foto ?? null
 
   return (
     <div

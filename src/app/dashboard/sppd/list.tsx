@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 
 type Approval = {
   id: string
@@ -65,7 +65,6 @@ function TransportIcon({ type }: { type: string }) {
       <path d="M12 2v3M8 7l4-2 4 2"/>
     </svg>
   )
-  // Default: DARAT
   return (
     <svg {...style} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <rect x="1" y="3" width="15" height="13" rx="2"/>
@@ -96,8 +95,12 @@ function durasi(tglBerangkat: string, tglKembali: string) {
 
 export default function SppdList({ data, role }: { data: SppdItem[]; role?: string }) {
   const router = useRouter()
+  const searchParams = useSearchParams()
+
+  // Baca keyword dari URL (?search=...) — terkoneksi dengan topbar search
+  const urlSearch = searchParams.get("search") ?? ""
   const [filter, setFilter] = useState("ALL")
-  const [search, setSearch] = useState("")
+  const [search, setSearch] = useState(urlSearch)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [confirmId, setConfirmId] = useState<string | null>(null)
 
@@ -314,7 +317,7 @@ export default function SppdList({ data, role }: { data: SppdItem[]; role?: stri
                       </div>
                     </td>
 
-                    {/* Transport — SVG icon, no emoji */}
+                    {/* Transport */}
                     <td style={{ padding: "14px 16px", whiteSpace: "nowrap" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#6b7280" }}>
                         <TransportIcon type={item.transport} />

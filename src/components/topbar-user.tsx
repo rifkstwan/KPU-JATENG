@@ -1,5 +1,7 @@
 "use client"
 
+import { useRouter } from "next/navigation"
+
 type TopbarUserProps = {
   nama?: string | null
   role?: string | null
@@ -8,7 +10,6 @@ type TopbarUserProps = {
 
 function getInitials(nama?: string | null) {
   if (!nama) return "U"
-
   return nama
     .trim()
     .split(" ")
@@ -27,14 +28,23 @@ function getRoleLabel(role?: string | null) {
 
 export default function TopbarUser({ nama, role, image }: TopbarUserProps) {
   const initials = getInitials(nama)
+  const router = useRouter()
 
   return (
     <div
+      onClick={() => router.push("/dashboard/profil")}
       style={{
         display: "flex",
         alignItems: "center",
         gap: "12px",
+        cursor: "pointer",
+        borderRadius: "10px",
+        padding: "6px 8px",
+        transition: "background 150ms ease",
       }}
+      onMouseEnter={e => e.currentTarget.style.background = "#f3f4f6"}
+      onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+      title="Lihat profil"
     >
       {image ? (
         <img
@@ -71,23 +81,10 @@ export default function TopbarUser({ nama, role, image }: TopbarUserProps) {
       )}
 
       <div style={{ lineHeight: 1.15 }}>
-        <div
-          style={{
-            fontSize: "14px",
-            fontWeight: 700,
-            color: "#1a1f36",
-            marginBottom: "2px",
-          }}
-        >
+        <div style={{ fontSize: "14px", fontWeight: 700, color: "#1a1f36", marginBottom: "2px" }}>
           {nama || "User"}
         </div>
-        <div
-          style={{
-            fontSize: "12px",
-            color: "#8b93a7",
-            fontWeight: 500,
-          }}
-        >
+        <div style={{ fontSize: "12px", color: "#8b93a7", fontWeight: 500 }}>
           {getRoleLabel(role)}
         </div>
       </div>
