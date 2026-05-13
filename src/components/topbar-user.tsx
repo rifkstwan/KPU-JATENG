@@ -1,52 +1,94 @@
 "use client"
 
-type Props = {
-  initials: string
-  firstName: string
-  role: string
-  foto?: string | null  // ← tambah prop foto
+type TopbarUserProps = {
+  nama?: string | null
+  role?: string | null
+  image?: string | null
 }
 
-export default function TopbarUser({ initials, firstName, role, foto }: Props) {
+function getInitials(nama?: string | null) {
+  if (!nama) return "U"
+
+  return nama
+    .trim()
+    .split(" ")
+    .filter(Boolean)
+    .map(part => part[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase()
+}
+
+function getRoleLabel(role?: string | null) {
+  if (role === "ADMIN") return "Admin"
+  if (role === "APPROVER") return "Approver"
+  return "Pegawai"
+}
+
+export default function TopbarUser({ nama, role, image }: TopbarUserProps) {
+  const initials = getInitials(nama)
+
   return (
     <div
       style={{
-        display: "flex", alignItems: "center", gap: "10px",
-        cursor: "pointer", padding: "6px 8px", borderRadius: "10px",
-        transition: "background 0.15s",
+        display: "flex",
+        alignItems: "center",
+        gap: "12px",
       }}
-      onMouseEnter={e => (e.currentTarget.style.background = "#f5f6fa")}
-      onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
     >
-      {/* Avatar — foto jika ada, inisial jika tidak */}
-      <div style={{
-        width: 34, height: 34, borderRadius: "50%",
-        background: "linear-gradient(135deg, #00205b 0%, #0041a8 100%)",
-        display: "flex", alignItems: "center", justifyContent: "center",
-        color: "#fff", fontSize: "12px", fontWeight: 700,
-        flexShrink: 0, letterSpacing: "0.5px",
-        overflow: "hidden",
-      }}>
-        {foto ? (
-          <img
-            src={foto}
-            alt={firstName}
-            width={34}
-            height={34}
-            style={{ width: "100%", height: "100%", objectFit: "cover" }}
-          />
-        ) : (
-          initials
-        )}
-      </div>
-
-      {/* Nama + Role */}
-      <div>
-        <div style={{ fontSize: "13px", fontWeight: 700, color: "#1a1f36", lineHeight: 1.25 }}>
-          {firstName}
+      {image ? (
+        <img
+          src={image}
+          alt={nama ?? "User"}
+          style={{
+            width: 40,
+            height: 40,
+            borderRadius: "999px",
+            objectFit: "cover",
+            background: "#f3f4f6",
+            boxShadow: "0 0 0 1px #e5e7eb",
+            flexShrink: 0,
+          }}
+        />
+      ) : (
+        <div
+          style={{
+            width: 40,
+            height: 40,
+            borderRadius: "999px",
+            background: "#0d3b8e",
+            color: "#fff",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "15px",
+            fontWeight: 800,
+            flexShrink: 0,
+          }}
+        >
+          {initials}
         </div>
-        <div style={{ fontSize: "11px", color: "#8f95a3", lineHeight: 1.2 }}>
-          {role.charAt(0) + role.slice(1).toLowerCase()}
+      )}
+
+      <div style={{ lineHeight: 1.15 }}>
+        <div
+          style={{
+            fontSize: "14px",
+            fontWeight: 700,
+            color: "#1a1f36",
+            marginBottom: "2px",
+          }}
+        >
+          {nama || "User"}
+        </div>
+        <div
+          style={{
+            fontSize: "12px",
+            color: "#8b93a7",
+            fontWeight: 500,
+          }}
+        >
+          {getRoleLabel(role)}
         </div>
       </div>
     </div>
