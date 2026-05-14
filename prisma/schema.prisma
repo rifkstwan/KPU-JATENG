@@ -1,8 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -51,10 +49,11 @@ model User {
   password  String
   jabatan   String?
   divisi    String?
+  golongan  String? // <- TAMBAH INI
   role      Role     @default(PEGAWAI)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  foto      String? // URL foto profil
+  foto      String?
 
   pengajuan  PengajuanSPPD[] @relation("PengajuSPPD")
   approvals  Approval[]      @relation("ApproverSPPD")
@@ -67,19 +66,22 @@ model User {
 }
 
 model PengajuanSPPD {
-  id           String         @id @default(cuid())
-  nomorSppd    String         @unique
-  userId       String
-  tujuan       String
-  tglBerangkat DateTime       @db.Date
-  tglKembali   DateTime       @db.Date
-  transport    JenisTransport @default(DARAT)
-  anggaran     BigInt         @default(0)
-  maksud       String
-  catatan      String?
-  status       StatusSPPD     @default(DRAFT)
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+  id              String         @id @default(cuid())
+  nomorSppd       String         @unique
+  userId          String
+  tujuan          String
+  tglBerangkat    DateTime       @db.Date
+  tglKembali      DateTime       @db.Date
+  transport       JenisTransport @default(DARAT)
+  anggaran        BigInt         @default(0)
+  maksud          String
+  catatan         String?
+  status          StatusSPPD     @default(DRAFT)
+  tempatBerangkat String? // <- TAMBAH INI
+  tingkatBiaya    String? // <- TAMBAH INI
+  kodeAkun        String? // <- TAMBAH INI
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
 
   user       User         @relation("PengajuSPPD", fields: [userId], references: [id])
   approvals  Approval[]

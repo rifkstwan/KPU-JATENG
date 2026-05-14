@@ -12,31 +12,38 @@ export default function PengajuanPage() {
     maksud: "",
     tanggalBerangkat: "",
     tanggalKembali: "",
+    tempatBerangkat: "Semarang",
+    tingkatBiaya: "B",
+    kodeAkun: "524119",
     transport: "DARAT",
     anggaran: "",
     catatan: "",
   })
 
-  // ── Validasi ──
   const validate = () => {
     const e: Record<string, string> = {}
     if (!form.tujuan.trim()) e.tujuan = "Tujuan perjalanan wajib diisi"
     if (!form.maksud.trim()) e.maksud = "Keperluan / maksud wajib diisi"
     if (!form.tanggalBerangkat) e.tanggalBerangkat = "Tanggal berangkat wajib diisi"
     if (!form.tanggalKembali) e.tanggalKembali = "Tanggal kembali wajib diisi"
+    if (!form.tempatBerangkat.trim()) e.tempatBerangkat = "Tempat berangkat wajib diisi"
+    if (!form.tingkatBiaya.trim()) e.tingkatBiaya = "Tingkat biaya wajib diisi"
+    if (!form.kodeAkun.trim()) e.kodeAkun = "Kode akun wajib diisi"
+
     if (form.tanggalBerangkat && form.tanggalKembali) {
       if (new Date(form.tanggalKembali) < new Date(form.tanggalBerangkat)) {
         e.tanggalKembali = "Tanggal kembali tidak boleh sebelum tanggal berangkat"
       }
     }
+
     setErrors(e)
     return Object.keys(e).length === 0
   }
 
-  // ── Submit ──
   const handleSubmit = async (action: "DRAFT" | "PENDING") => {
     if (!validate()) return
     setLoadingAction(action)
+
     try {
       const res = await fetch("/api/sppd", {
         method: "POST",
@@ -46,12 +53,16 @@ export default function PengajuanPage() {
           maksud: form.maksud,
           tglBerangkat: form.tanggalBerangkat,
           tglKembali: form.tanggalKembali,
+          tempatBerangkat: form.tempatBerangkat,
+          tingkatBiaya: form.tingkatBiaya,
+          kodeAkun: form.kodeAkun,
           transport: form.transport,
           anggaran: Number(form.anggaran.replace(/\D/g, "") || "0"),
           catatan: form.catatan || null,
           status: action,
         }),
       })
+
       if (res.ok) {
         router.push("/dashboard/sppd")
         router.refresh()
@@ -71,7 +82,6 @@ export default function PengajuanPage() {
     setForm({ ...form, anggaran: num ? Number(num).toLocaleString("id-ID") : "" })
   }
 
-  // ── Styles ──
   const inputStyle: React.CSSProperties = {
     width: "100%",
     padding: "10px 14px",
@@ -219,7 +229,6 @@ export default function PengajuanPage() {
 
   return (
     <div>
-      {/* Page Header */}
       <div style={{ marginBottom: "24px" }}>
         <h1 style={{ fontSize: "22px", fontWeight: 800, color: "#1a1f36", margin: 0, letterSpacing: "-0.3px" }}>
           Ajukan SPPD Baru
@@ -229,10 +238,7 @@ export default function PengajuanPage() {
         </p>
       </div>
 
-      {/* 2-Column Layout */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: "20px", alignItems: "start" }}>
-
-        {/* ── KIRI: Form ── */}
         <div style={{
           background: "#fff",
           borderRadius: "16px",
@@ -240,7 +246,6 @@ export default function PengajuanPage() {
           boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
           overflow: "hidden",
         }}>
-          {/* Card Header */}
           <div style={{
             padding: "18px 24px",
             borderBottom: "1px solid #eef0f4",
@@ -266,10 +271,7 @@ export default function PengajuanPage() {
             </div>
           </div>
 
-          {/* Form Body */}
           <div style={{ padding: "24px", display: "flex", flexDirection: "column", gap: "20px" }}>
-
-            {/* Tujuan */}
             <div>
               <label style={labelStyle}>Tujuan Perjalanan</label>
               <input
@@ -283,7 +285,6 @@ export default function PengajuanPage() {
               {errors.tujuan && <p style={errorStyle}>{errors.tujuan}</p>}
             </div>
 
-            {/* Maksud */}
             <div>
               <label style={labelStyle}>Keperluan / Maksud</label>
               <textarea
@@ -309,7 +310,6 @@ export default function PengajuanPage() {
               {errors.maksud && <p style={errorStyle}>{errors.maksud}</p>}
             </div>
 
-            {/* Tanggal */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
               <div>
                 <label style={labelStyle}>Tanggal Berangkat</label>
@@ -336,7 +336,44 @@ export default function PengajuanPage() {
               </div>
             </div>
 
-            {/* Transport */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px" }}>
+              <div>
+                <label style={labelStyle}>Tempat Berangkat</label>
+                <input
+                  type="text"
+                  value={form.tempatBerangkat}
+                  onChange={e => setForm({ ...form, tempatBerangkat: e.target.value })}
+                  style={{ ...inputStyle, borderColor: errors.tempatBerangkat ? "#ef4444" : "#e2e5ed" }}
+                  {...focusHandlers}
+                />
+                {errors.tempatBerangkat && <p style={errorStyle}>{errors.tempatBerangkat}</p>}
+              </div>
+
+              <div>
+                <label style={labelStyle}>Tingkat Biaya</label>
+                <input
+                  type="text"
+                  value={form.tingkatBiaya}
+                  onChange={e => setForm({ ...form, tingkatBiaya: e.target.value })}
+                  style={{ ...inputStyle, borderColor: errors.tingkatBiaya ? "#ef4444" : "#e2e5ed" }}
+                  {...focusHandlers}
+                />
+                {errors.tingkatBiaya && <p style={errorStyle}>{errors.tingkatBiaya}</p>}
+              </div>
+
+              <div>
+                <label style={labelStyle}>Kode Akun</label>
+                <input
+                  type="text"
+                  value={form.kodeAkun}
+                  onChange={e => setForm({ ...form, kodeAkun: e.target.value })}
+                  style={{ ...inputStyle, borderColor: errors.kodeAkun ? "#ef4444" : "#e2e5ed" }}
+                  {...focusHandlers}
+                />
+                {errors.kodeAkun && <p style={errorStyle}>{errors.kodeAkun}</p>}
+              </div>
+            </div>
+
             <div>
               <label style={labelStyle}>Moda Transportasi</label>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "10px" }}>
@@ -353,8 +390,10 @@ export default function PengajuanPage() {
                         border: `1.5px solid ${isSelected ? "#00205b" : "#e2e5ed"}`,
                         background: isSelected ? "#eef1f8" : "#fff",
                         color: isSelected ? "#00205b" : "#8f95a3",
-                        display: "flex", flexDirection: "column",
-                        alignItems: "center", gap: "6px",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        gap: "6px",
                         cursor: "pointer",
                         fontSize: "12px",
                         fontWeight: isSelected ? 600 : 400,
@@ -371,7 +410,6 @@ export default function PengajuanPage() {
               </div>
             </div>
 
-            {/* Anggaran */}
             <div>
               <label style={labelStyle}>
                 Estimasi Anggaran{" "}
@@ -381,8 +419,7 @@ export default function PengajuanPage() {
                 <span style={{
                   position: "absolute", left: "13px", top: "50%",
                   transform: "translateY(-50%)",
-                  fontSize: "13px", color: "#8f95a3", pointerEvents: "none",
-                  userSelect: "none",
+                  fontSize: "13px", color: "#8f95a3", pointerEvents: "none", userSelect: "none",
                 }}>
                   Rp
                 </span>
@@ -398,7 +435,6 @@ export default function PengajuanPage() {
               </div>
             </div>
 
-            {/* Catatan */}
             <div>
               <label style={labelStyle}>
                 Catatan Tambahan{" "}
@@ -423,10 +459,7 @@ export default function PengajuanPage() {
 
             <div style={{ height: 1, background: "#eef0f4" }} />
 
-            {/* ── TOMBOL AKSI ── */}
             <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", flexWrap: "wrap" }}>
-
-              {/* Batal */}
               <button
                 type="button"
                 onClick={() => router.back()}
@@ -450,7 +483,6 @@ export default function PengajuanPage() {
                 Batal
               </button>
 
-              {/* Simpan Draft */}
               <button
                 type="button"
                 disabled={loadingAction !== null}
@@ -486,7 +518,6 @@ export default function PengajuanPage() {
                 )}
               </button>
 
-              {/* Kirim Pengajuan */}
               <button
                 type="button"
                 disabled={loadingAction !== null}
@@ -522,7 +553,6 @@ export default function PengajuanPage() {
               </button>
             </div>
 
-            {/* Info box */}
             <div style={{
               background: "#f0f4ff",
               border: "1px solid #c7d2fe",
@@ -535,14 +565,10 @@ export default function PengajuanPage() {
               <strong>Simpan Draft</strong> — Tersimpan, belum dikirim ke Approver. Bisa diedit kapan saja.<br />
               <strong>Kirim Pengajuan</strong> — Langsung masuk antrian review Approver. Tidak bisa diubah setelah dikirim.
             </div>
-
           </div>
         </div>
 
-        {/* ── KANAN: Panel Info ── */}
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-
-          {/* Alur Pengajuan */}
           <div style={{
             background: "#fff", borderRadius: "16px",
             border: "1px solid #eef0f4",
@@ -586,7 +612,6 @@ export default function PengajuanPage() {
             </div>
           </div>
 
-          {/* Panduan */}
           <div style={{
             background: "#fff", borderRadius: "16px",
             border: "1px solid #eef0f4",
@@ -613,7 +638,6 @@ export default function PengajuanPage() {
             </div>
           </div>
 
-          {/* Butuh Bantuan */}
           <div style={{
             background: "linear-gradient(135deg, #00205b 0%, #0041a8 100%)",
             borderRadius: "16px", padding: "20px",
@@ -640,7 +664,6 @@ export default function PengajuanPage() {
               </div>
             </div>
           </div>
-
         </div>
       </div>
 

@@ -3,7 +3,6 @@ import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { JenisTransport, StatusSPPD, TipeNotifikasi } from "@prisma/client"
 
-// ── Generate nomor SPPD otomatis: SPPD-2026-001 ──
 async function generateNomorSppd(): Promise<string> {
   const year = new Date().getFullYear()
   const count = await prisma.pengajuanSPPD.count({
@@ -15,7 +14,6 @@ async function generateNomorSppd(): Promise<string> {
   return `SPPD-${year}-${seq}`
 }
 
-// ── POST /api/sppd ──
 export async function POST(req: NextRequest) {
   try {
     const session = await auth()
@@ -24,16 +22,27 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json()
-    const { tujuan, maksud, tglBerangkat, tglKembali, transport, anggaran, catatan, status } = body
+    const {
+      tujuan,
+      maksud,
+      tglBerangkat,
+      tglKembali,
+      tempatBerangkat,
+      tingkatBiaya,
+      kodeAkun,
+      transport,
+      anggaran,
+      catatan,
+      status,
+    } = body
 
-    // Validasi field wajib
     if (!tujuan || !maksud || !tglBerangkat || !tglKembali) {
       return NextResponse.json({ message: "Field wajib tidak lengkap" }, { status: 400 })
     }
 
-    // Validasi tanggal
     const berangkat = new Date(tglBerangkat)
     const kembali = new Date(tglKembali)
+
     if (kembali < berangkat) {
       return NextResponse.json(
         { message: "Tanggal kembali tidak boleh sebelum tanggal berangkat" },
@@ -41,13 +50,11 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Validasi status enum
     const validStatus: StatusSPPD[] = ["DRAFT", "PENDING"]
     if (!validStatus.includes(status)) {
       return NextResponse.json({ message: "Status tidak valid" }, { status: 400 })
     }
 
-    // Validasi transport enum
     const validTransport: JenisTransport[] = ["DARAT", "UDARA", "KERETA", "LAUT"]
     const transportValue: JenisTransport = validTransport.includes(transport)
       ? transport
@@ -55,7 +62,6 @@ export async function POST(req: NextRequest) {
 
     const nomorSppd = await generateNomorSppd()
 
-    // Simpan ke database — field names sesuai schema
     const sppd = await prisma.pengajuanSPPD.create({
       data: {
         nomorSppd,
@@ -64,14 +70,16 @@ export async function POST(req: NextRequest) {
         maksud,
         tglBerangkat: berangkat,
         tglKembali: kembali,
+        tempatBerangkat: tempatBerangkat?.trim() || "Semarang",
+        tingkatBiaya: tingkatBiaya?.trim() || "B",
+        kodeAkun: kodeAkun?.trim() || "524119",
         transport: transportValue,
         anggaran: BigInt(anggaran ?? 0),
-        catatan: catatan ?? null,
+        catatan: catatan?.trim() || null,
         status: status as StatusSPPD,
       },
     })
 
-    // Jika PENDING → notifikasi ke semua APPROVER
     if (status === "PENDING") {
       const approvers = await prisma.user.findMany({
         where: { role: "APPROVER" },
@@ -89,7 +97,6 @@ export async function POST(req: NextRequest) {
         })
       }
 
-      // Konfirmasi ke pegawai sendiri
       await prisma.notifikasi.create({
         data: {
           userId: session.user.id,
@@ -110,7 +117,6 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// ── GET /api/sppd ──
 export async function GET() {
   try {
     const session = await auth()
@@ -136,7 +142,6 @@ export async function GET() {
       orderBy: { createdAt: "desc" },
     })
 
-    // Serialize BigInt → string untuk JSON
     const data = sppd.map((item) => ({
       ...item,
       anggaran: item.anggaran.toString(),
