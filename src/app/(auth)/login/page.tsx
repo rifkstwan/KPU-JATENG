@@ -57,24 +57,20 @@ const LogoBadge = () => (
       </span>
     </div>
 
-    <div style={{
-      display: "inline-flex", alignItems: "center", gap: 8,
-      background: "rgba(245,197,24,0.15)",
-      border: "1px solid rgba(245,197,24,0.3)",
-      borderRadius: 999, padding: "5px 14px",
-      width: "fit-content",
-    }}>
-      <div style={{
-        width: 6, height: 6, borderRadius: "50%",
-        background: "#f5c518",
-      }} />
-      <span style={{
-        color: "#f5c518", fontSize: 11,
-        fontWeight: 600, letterSpacing: "0.8px",
-      }}>
-        KOMISI PEMILIHAN UMUM RI
-      </span>
-    </div>
+<div style={{
+  display: "inline-flex", alignItems: "center", gap: 8,
+  background: "linear-gradient(135deg, #f5c518, #e6a800)",
+  borderRadius: 999, padding: "6px 16px",
+  width: "fit-content",
+  boxShadow: "0 2px 12px rgba(245,197,24,0.35)",
+}}>
+  <span style={{
+    color: "#3d2600", fontSize: 11,
+    fontWeight: 800, letterSpacing: "1.2px",
+  }}>
+    KOMISI PEMILIHAN UMUM RI
+  </span>
+</div>
   </div>
 )
 

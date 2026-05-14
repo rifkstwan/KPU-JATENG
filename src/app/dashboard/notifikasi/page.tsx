@@ -7,24 +7,30 @@ export default async function NotifikasiPage() {
   const session = await auth()
   if (!session?.user) redirect("/login")
 
-  const userId = (session.user as { id: string }).id
+  const user   = session.user as { id: string; role?: string }
+  const userId = user.id
+  const role   = user.role ?? "PEGAWAI"
 
   const notifikasi = await prisma.notifikasi.findMany({
-    where: { userId },
+    where: role === "ADMIN" ? {} : { userId },
     orderBy: { createdAt: "desc" },
-    take: 50,
+    take: 100,
     include: {
       sppd: { select: { nomorSppd: true, tujuan: true } },
+      user: { select: { nama: true } },
     },
   })
 
   const data = notifikasi.map(n => ({
-    id: n.id,
-    pesan: n.pesan,
-    tipe: n.tipe,
-    isRead: n.isRead,
+    id:        n.id,
+    pesan:     n.pesan,
+    tipe:      n.tipe,
+    isRead:    n.isRead,
     createdAt: n.createdAt.toISOString(),
-    sppd: n.sppd ? { nomorSppd: n.sppd.nomorSppd, tujuan: n.sppd.tujuan } : null,
+    sppd:      n.sppd
+      ? { nomorSppd: n.sppd.nomorSppd, tujuan: n.sppd.tujuan }
+      : null,
+    userName: n.user?.nama ?? null,
   }))
 
   return (
@@ -34,10 +40,12 @@ export default async function NotifikasiPage() {
           Notifikasi
         </h1>
         <p style={{ fontSize: "13px", color: "#8f95a3", margin: "4px 0 0" }}>
-          Riwayat semua notifikasi yang kamu terima
+          {role === "ADMIN"
+            ? "Semua notifikasi yang dikirim sistem ke seluruh pengguna"
+            : "Riwayat semua notifikasi yang kamu terima"}
         </p>
       </div>
-      <NotifikasiClient data={data} />
+      <NotifikasiClient data={data} isAdmin={role === "ADMIN"} />
     </div>
   )
 }

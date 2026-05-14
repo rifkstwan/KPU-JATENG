@@ -51,12 +51,10 @@ export default function NotifBell() {
 
   const unreadCount = notifs.filter(n => !n.isRead).length
 
-  // Fetch notifikasi saat komponen mount
   useEffect(() => {
     fetchNotifs()
   }, [])
 
-  // Tutup dropdown kalau klik di luar
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
@@ -93,7 +91,7 @@ export default function NotifBell() {
 
   function handleOpen() {
     setOpen(prev => !prev)
-    if (!open) fetchNotifs() // refresh tiap buka
+    if (!open) fetchNotifs()
   }
 
   function goToNotifikasi() {
@@ -184,7 +182,12 @@ export default function NotifBell() {
               </div>
             ) : notifs.length === 0 ? (
               <div style={{ padding: "32px 20px", textAlign: "center" }}>
-                <div style={{ fontSize: "28px", marginBottom: "8px" }}>🔔</div>
+                <div style={{ display: "flex", justifyContent: "center", marginBottom: "10px" }}>
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" strokeWidth="1.5">
+                    <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                    <path d="M13.73 21a2 2 0 01-3.46 0"/>
+                  </svg>
+                </div>
                 <div style={{ fontSize: 13, color: "#9ca3af" }}>Belum ada notifikasi</div>
               </div>
             ) : (
@@ -240,7 +243,7 @@ export default function NotifBell() {
             )}
           </div>
 
-          {/* Footer — lihat semua */}
+          {/* Footer */}
           <button onClick={goToNotifikasi} style={{
             width: "100%", padding: "12px",
             background: "#f8f9fb", border: "none",
@@ -252,7 +255,7 @@ export default function NotifBell() {
           onMouseEnter={e => e.currentTarget.style.background = "#eef1f8"}
           onMouseLeave={e => e.currentTarget.style.background = "#f8f9fb"}
           >
-            Lihat semua notifikasi →
+            Lihat semua notifikasi 
           </button>
         </div>
       )}
