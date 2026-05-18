@@ -112,13 +112,11 @@ export default async function DashboardLayout({
   const role = ((session.user as { role?: keyof typeof navItems })?.role || "PEGAWAI") as keyof typeof navItems
   const items = navItems[role] || navItems.PEGAWAI
 
-  const nama = session.user?.name || "User"
-
-// Ambil foto langsung dari DB supaya selalu up-to-date
-const userDb = await prisma.user.findUnique({
+  const userDb = await prisma.user.findUnique({
   where: { id: session.user.id },
-  select: { foto: true },
+  select: { foto: true, nama: true },  // ← tambah nama
 })
+const nama = userDb?.nama || session.user?.name || "User"  // ← pindah ke sini
 const image = userDb?.foto ?? null
 
   return (
