@@ -1,5 +1,13 @@
 import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
+import { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: {
+    template: "%s | SPPD Internal KPU Jateng",
+    default: "SPPD Internal KPU Jateng",
+  },
+}
 import { prisma } from "@/lib/prisma"   // <-- tambahkan di sini
 import { SignOutButton } from "@/components/sign-out-button"
 import NotifBell from "@/components/notif-bell"

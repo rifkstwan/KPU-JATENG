@@ -1,27 +1,86 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-surface: #f8f9fa;
+  --color-surface-dim: #d9dadb;
+  --color-surface-bright: #f8f9fa;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f3f4f5;
+  --color-surface-container: #eeeeef;
+  --color-surface-container-high: #e8e9e9;
+  --color-surface-container-highest: #e2e3e4;
+  --color-on-surface: #1a1c1e;
+  --color-on-surface-variant: #43474e;
+  
+  --color-outline: #73777f;
+  --color-outline-variant: #c3c7cf;
+  
+  --color-primary: #8c0e0f;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #ffdad9;
+  --color-on-primary-container: #3b0001;
+  
+  --color-secondary: #775656;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #ffdad9;
+  --color-on-secondary-container: #2c1516;
+  
+  --color-tertiary: #755a2f;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #ffdead;
+  --color-on-tertiary-container: #281900;
+  
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #410002;
+  
+  --color-deep-batik-red: #8c0e0f;
+  --color-golden-energy: #d4af37;
+
+  --shadow-level1: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+  --shadow-level2: 0px 2px 6px 2px rgba(0, 0, 0, 0.15);
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+
+  --font-sans: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
+  
+  --text-display-large: 57px;
+  --text-headline-medium: 28px;
+  --text-title-large: 22px;
+  --text-body-medium: 14px;
+  --text-label-large: 14px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+@layer base {
+  body {
+    background-color: var(--color-surface);
+    color: var(--color-on-surface);
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  .dark {
+    --color-surface: #121212;
+    --color-surface-dim: #1e1e1e;
+    --color-surface-bright: #2c2c2c;
+    --color-surface-container-lowest: #000000;
+    --color-surface-container-low: #1c1c1c;
+    --color-surface-container: #212121;
+    --color-surface-container-high: #2b2b2b;
+    --color-surface-container-highest: #333333;
+    
+    --color-on-surface: #e3e3e3;
+    --color-on-surface-variant: #a0a0a0;
+    
+    --color-outline: #8e8e8e;
+    --color-outline-variant: #4a4a4a;
+    
+    /* Tombol dan aksen tetap mempertahankan warna brand KPU (Merah/Emas),
+       hanya diredupkan sedikit jika dirasa perlu, atau dibiarkan sama. */
+    --color-primary-container: #5c0808;
+    --color-on-primary-container: #ffdad9;
   }
 }
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');

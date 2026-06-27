@@ -2,6 +2,11 @@ import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import Link from "next/link"
+import { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Dashboard",
+}
 
 // ── Helpers ──
 function bigIntToNumber(val: bigint | null | undefined): number {

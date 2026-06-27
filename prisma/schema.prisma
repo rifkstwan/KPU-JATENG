@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,10 +6,12 @@ datasource db {
   provider = "postgresql"
 }
 
+// ─── Enum Existing ───────────────────────────────────────
 enum Role {
   PEGAWAI
   APPROVER
   ADMIN
+  CMS_ADMIN // ← TAMBAH INI untuk CMS Landing Page
 }
 
 enum StatusSPPD {
@@ -41,6 +40,14 @@ enum TipeNotifikasi {
   INFO
 }
 
+// ─── Enum Baru (Landing Page) ─────────────────────────────
+enum KritikSaranStatus {
+  BELUM_DIBACA
+  SUDAH_DIBACA
+  DIBALAS
+}
+
+// ─── Model Existing (tidak diubah) ───────────────────────
 model User {
   id        String   @id @default(cuid())
   nama      String
@@ -49,7 +56,7 @@ model User {
   password  String
   jabatan   String?
   divisi    String?
-  golongan  String? // <- TAMBAH INI
+  golongan  String?
   role      Role     @default(PEGAWAI)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -77,9 +84,9 @@ model PengajuanSPPD {
   maksud          String
   catatan         String?
   status          StatusSPPD     @default(DRAFT)
-  tempatBerangkat String? // <- TAMBAH INI
-  tingkatBiaya    String? // <- TAMBAH INI
-  kodeAkun        String? // <- TAMBAH INI
+  tempatBerangkat String?
+  tingkatBiaya    String?
+  kodeAkun        String?
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
 
@@ -187,4 +194,90 @@ model VerificationToken {
 
   @@unique([identifier, token])
   @@map("verification_tokens")
+}
+
+// ─── Model Baru: Landing Page ─────────────────────────────
+
+model InformasiLayanan {
+  id            String   @id @default(cuid())
+  namaLayanan   String
+  persyaratan   String   @db.Text
+  jamPelayanan  String
+  alurPelayanan String   @db.Text
+  urutan        Int      @default(0)
+  aktif         Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([namaLayanan])
+  @@map("informasi_layanan")
+}
+
+model KritikSaran {
+  id        String            @id @default(cuid())
+  nama      String
+  kontak    String?
+  isi       String            @db.Text
+  status    KritikSaranStatus @default(BELUM_DIBACA)
+  balasan   String?           @db.Text
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  @@map("kritik_saran")
+}
+
+model TentangKPU {
+  id          String   @id @default(cuid())
+  profil      String   @db.Text
+  visi        String   @db.Text
+  misi        String   @db.Text
+  alamat      String
+  telepon     String?
+  email       String?
+  mapEmbedUrl String?
+  updatedAt   DateTime @updatedAt
+
+  @@map("tentang_kpu")
+}
+
+model KontakKPU {
+  id        String   @id @default(cuid())
+  label     String
+  telepon   String?
+  email     String?
+  whatsapp  String?
+  urutan    Int      @default(0)
+  aktif     Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("kontak_kpu")
+}
+
+model Berita {
+  id        String   @id @default(cuid())
+  judul     String
+  slug      String   @unique
+  ringkasan String?  @db.Text
+  konten    String   @db.Text
+  gambarUrl String?
+  kategori  String?
+  sumber    String?
+  published Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("berita")
+}
+
+model Publikasi {
+  id        String   @id @default(cuid())
+  judul     String
+  url       String
+  tanggal   String?
+  published Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("publikasi")
 }
