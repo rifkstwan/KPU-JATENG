@@ -145,7 +145,7 @@ useEffect(() => {
   return (
     <div>
       {/* Stat Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px", marginBottom: "20px" }}>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
         {stats.map((s) => (
           <div key={s.label} style={{
             background: "#fff", borderRadius: "14px",
@@ -248,7 +248,8 @@ useEffect(() => {
             </div>
           </div>
         ) : (
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <div className="overflow-x-auto w-full">
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr style={{ background: "#f8f9fb", borderBottom: "1px solid #eef0f4" }}>
                 {[
@@ -464,6 +465,7 @@ useEffect(() => {
               })}
             </tbody>
           </table>
+          </div>
         )}
       </div>
     </div>

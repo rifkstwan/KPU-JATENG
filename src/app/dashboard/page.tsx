@@ -158,7 +158,7 @@ async function PegawaiDashboard({ userId, nama }: { userId: string; nama: string
       </div>
 
       {/* Stat Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px", marginBottom: "24px" }}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
         <StatCard label="TOTAL SPPD" value={total} sub="Semua pengajuan" color="#00205b" href="/dashboard/sppd"
           icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>}
         />
@@ -323,7 +323,7 @@ async function ApproverDashboard({ userId, nama }: { userId: string; nama: strin
       </div>
 
       {/* Stats */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px", marginBottom: "24px" }}>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
         <StatCard label="MENUNGGU REVIEW" value={pendingCount} sub="Perlu diproses" color="#d97706" href="/dashboard/approval"
           icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>}
         />
@@ -335,7 +335,7 @@ async function ApproverDashboard({ userId, nama }: { userId: string; nama: strin
         />
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Antrian Pending */}
         <div style={{
           background: "#fff", borderRadius: "16px",
@@ -527,7 +527,7 @@ async function AdminDashboard({ nama }: { nama: string }) {
       </div>
 
       {/* Stats Grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px", marginBottom: "24px" }}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
         <StatCard
           label="TOTAL PENGGUNA" value={totalUser}
           sub={userByRole.map(r => `${r.role}: ${r._count.role}`).join(" · ")}
@@ -570,52 +570,54 @@ async function AdminDashboard({ nama }: { nama: string }) {
             </svg>
           </Link>
         </div>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead>
-            <tr style={{ background: "#f8f9fb", borderBottom: "1px solid #eef0f4" }}>
-              {["NOMOR SPPD", "PEGAWAI", "TUJUAN", "TANGGAL", "STATUS"].map((h) => (
-                <th key={h} style={{
-                  padding: "10px 16px", textAlign: "left",
-                  fontSize: "11px", fontWeight: 700, color: "#9ca3af",
-                  letterSpacing: "0.06em", whiteSpace: "nowrap",
-                }}>{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {recentSppd.map((s, idx) => {
-              const cfg = STATUS_CONFIG[s.status] ?? STATUS_CONFIG.DRAFT
-              const isLast = idx === recentSppd.length - 1
-              return (
-                <tr key={s.id} style={{ borderBottom: isLast ? "none" : "1px solid #f3f4f6" }}>
-                  <td style={{ padding: "13px 16px" }}>
-                    <span style={{ fontSize: "13px", fontWeight: 700, color: "#00205b" }}>{s.nomorSppd}</span>
-                  </td>
-                  <td style={{ padding: "13px 16px" }}>
-                    <span style={{ fontSize: "13px", color: "#1a1f36" }}>{s.user.nama}</span>
-                  </td>
-                  <td style={{ padding: "13px 16px" }}>
-                    <span style={{ fontSize: "13px", color: "#6b7280" }}>{s.tujuan}</span>
-                  </td>
-                  <td style={{ padding: "13px 16px", whiteSpace: "nowrap" }}>
-                    <span style={{ fontSize: "12px", color: "#6b7280" }}>{formatTanggal(s.tglBerangkat)}</span>
-                  </td>
-                  <td style={{ padding: "13px 16px" }}>
-                    <span style={{
-                      padding: "3px 9px", borderRadius: "20px",
-                      background: cfg.bg, color: cfg.color,
-                      fontSize: "11px", fontWeight: 700,
-                      display: "inline-flex", alignItems: "center", gap: "4px",
-                    }}>
-                      <span style={{ width: 4, height: 4, borderRadius: "50%", background: cfg.dot }} />
-                      {cfg.label}
-                    </span>
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
+        <div className="overflow-x-auto w-full">
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <thead>
+              <tr style={{ background: "#f8f9fb", borderBottom: "1px solid #eef0f4" }}>
+                {["NOMOR SPPD", "PEGAWAI", "TUJUAN", "TANGGAL", "STATUS"].map((h) => (
+                  <th key={h} style={{
+                    padding: "10px 16px", textAlign: "left",
+                    fontSize: "11px", fontWeight: 700, color: "#9ca3af",
+                    letterSpacing: "0.06em", whiteSpace: "nowrap",
+                  }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {recentSppd.map((s, idx) => {
+                const cfg = STATUS_CONFIG[s.status] ?? STATUS_CONFIG.DRAFT
+                const isLast = idx === recentSppd.length - 1
+                return (
+                  <tr key={s.id} style={{ borderBottom: isLast ? "none" : "1px solid #f3f4f6" }}>
+                    <td style={{ padding: "13px 16px" }}>
+                      <span style={{ fontSize: "13px", fontWeight: 700, color: "#00205b" }}>{s.nomorSppd}</span>
+                    </td>
+                    <td style={{ padding: "13px 16px" }}>
+                      <span style={{ fontSize: "13px", color: "#1a1f36" }}>{s.user.nama}</span>
+                    </td>
+                    <td style={{ padding: "13px 16px" }}>
+                      <span style={{ fontSize: "13px", color: "#6b7280" }}>{s.tujuan}</span>
+                    </td>
+                    <td style={{ padding: "13px 16px", whiteSpace: "nowrap" }}>
+                      <span style={{ fontSize: "12px", color: "#6b7280" }}>{formatTanggal(s.tglBerangkat)}</span>
+                    </td>
+                    <td style={{ padding: "13px 16px" }}>
+                      <span style={{
+                        padding: "3px 9px", borderRadius: "20px",
+                        background: cfg.bg, color: cfg.color,
+                        fontSize: "11px", fontWeight: 700,
+                        display: "inline-flex", alignItems: "center", gap: "4px",
+                      }}>
+                        <span style={{ width: 4, height: 4, borderRadius: "50%", background: cfg.dot }} />
+                        {cfg.label}
+                      </span>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   )

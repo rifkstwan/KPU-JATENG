@@ -14,7 +14,8 @@ import {
   ExternalLink, 
   LogOut,
   Settings,
-  BellRing
+  BellRing,
+  X
 } from "lucide-react"
 import { useEffect, useState } from "react"
 
@@ -29,7 +30,7 @@ interface MenuGroup {
   items: MenuItem[]
 }
 
-export default function CMSSidebar() {
+export default function CMSSidebar({ onClose }: { onClose?: () => void }) {
   const pathname = usePathname()
   const [userName, setUserName] = useState("Admin CMS")
 
@@ -78,14 +79,25 @@ export default function CMSSidebar() {
   return (
     <aside className="w-64 bg-white dark:bg-zinc-950 border-r border-zinc-200 dark:border-zinc-800 flex flex-col min-h-screen">
       {/* Brand Header */}
-      <div className="px-6 py-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center gap-3">
-        <div className="relative w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
-          <Image src="/logo-kpu.png" alt="Logo KPU" fill className="object-contain" />
+      <div className="px-6 py-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="relative w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+            <Image src="/logo-kpu.png" alt="Logo KPU" fill className="object-contain" />
+          </div>
+          <div>
+            <p className="font-extrabold text-sm text-zinc-900 dark:text-white tracking-tight leading-tight uppercase">CMS Jateng</p>
+            <p className="text-[10px] text-zinc-500 dark:text-zinc-400 font-medium">Panel Pengelola Konten</p>
+          </div>
         </div>
-        <div>
-          <p className="font-extrabold text-sm text-zinc-900 dark:text-white tracking-tight leading-tight uppercase">CMS Jateng</p>
-          <p className="text-[10px] text-zinc-500 dark:text-zinc-400 font-medium">Panel Pengelola Konten</p>
-        </div>
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="md:hidden text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 p-1"
+            aria-label="Close Sidebar"
+          >
+            <X size={18} />
+          </button>
+        )}
       </div>
 
       {/* Nav Content */}
@@ -103,6 +115,7 @@ export default function CMSSidebar() {
                   <Link
                     key={item.href}
                     href={item.href}
+                    onClick={onClose}
                     className={`flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition duration-200 ${
                       isActive
                         ? "bg-primary/5 text-primary dark:bg-primary/20 dark:text-primary-container font-bold"

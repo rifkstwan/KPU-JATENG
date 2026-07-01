@@ -9,8 +9,7 @@ export const metadata: Metadata = {
   },
 }
 import { redirect } from "next/navigation"
-import CMSSidebar from "@/components/cms/CMSSidebar"
-import CMSHeader from "@/components/cms/CMSHeader"
+import CMSClientWrapper from "@/components/cms/cms-client-wrapper"
 import { prisma } from "@/lib/prisma"
 
 export default async function CMSLayout({ children }: { children: React.ReactNode }) {
@@ -47,26 +46,16 @@ export default async function CMSLayout({ children }: { children: React.ReactNod
   }))
 
   return (
-    <div className="h-screen flex overflow-hidden bg-[#f8f9fa] dark:bg-zinc-950 font-sans">
-      {/* Sidebar */}
-      <CMSSidebar />
-
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
-        {/* Dynamic Header */}
-        <CMSHeader 
-          user={{
-            name: session.user?.name,
-            email: session.user?.email,
-            role: (session.user as any)?.role
-          }}
-          initialUnreadCount={unreadCount}
-          initialUnreadItems={serializedItems}
-        />
-
-        {/* Scrollable Content Container */}
-        <main className="flex-1 p-8 overflow-y-auto">{children}</main>
-      </div>
-    </div>
+    <CMSClientWrapper
+      user={{
+        name: session.user?.name,
+        email: session.user?.email,
+        role: (session.user as any)?.role,
+      }}
+      initialUnreadCount={unreadCount}
+      initialUnreadItems={serializedItems}
+    >
+      {children}
+    </CMSClientWrapper>
   )
 }

@@ -71,10 +71,31 @@ export function OpinionSection() {
       {/* Interactive Testimonial Section */}
       <div className="flex flex-col md:flex-row items-center justify-between gap-10 lg:gap-20 px-4 max-w-5xl mx-auto">
         
-        {/* Left Side: Avatar Curve Selector */}
-        <div className="relative w-full md:w-[350px] h-auto md:h-[400px] flex-shrink-0 mx-auto md:mx-0 py-8 md:py-0">
+        {/* Mobile View: Horizontal Scrollable Avatar List */}
+        <div className="flex md:hidden flex-row items-center justify-start gap-4 w-full overflow-x-auto py-4 px-2 no-scrollbar">
+          {opinions.map((op, idx) => {
+            const isActive = activeIndex === idx
+            return (
+              <div 
+                key={idx}
+                onClick={() => setActiveIndex(idx)}
+                className="flex flex-col items-center gap-2 cursor-pointer flex-shrink-0"
+              >
+                <div className={`rounded-full overflow-hidden border-2 transition-all duration-300 w-14 h-14 bg-surface dark:bg-surface-container-high ${isActive ? 'border-primary shadow-md scale-105' : 'border-zinc-300 dark:border-zinc-700 opacity-60'}`}>
+                  <img src={op.avatar} alt={op.name} className="w-full h-full object-cover" />
+                </div>
+                <span className={`text-[10px] font-bold max-w-[80px] text-center truncate ${isActive ? 'text-zinc-900 dark:text-white' : 'text-zinc-500'}`}>
+                  {op.name.split(" ").slice(0, 2).join(" ")}
+                </span>
+              </div>
+            )
+          })}
+        </div>
+
+        {/* Desktop View: Avatar Curve Selector */}
+        <div className="hidden md:block relative w-[350px] h-[400px] flex-shrink-0">
           {/* Subtle Curve SVG */}
-          <svg className="absolute inset-0 w-full h-full pointer-events-none hidden md:block" viewBox="0 0 350 400" preserveAspectRatio="none">
+          <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 350 400" preserveAspectRatio="none">
             <path d="M 120 40 Q 20 200 120 360" fill="none" stroke="#cbd5e1" strokeWidth="1.5" className="dark:stroke-zinc-700" />
           </svg>
 
@@ -118,7 +139,7 @@ export function OpinionSection() {
         </div>
         
         {/* Right Side: Quote Text */}
-        <div className="w-full md:w-1/2 relative mt-6 md:mt-0 flex flex-col justify-center min-h-[200px]">
+        <div className="w-full md:w-1/2 relative mt-4 md:mt-0 flex flex-col justify-center min-h-[200px]">
           <div className="absolute -top-8 -left-2 md:-left-8 text-zinc-200 dark:text-zinc-800 pointer-events-none">
              <span className="text-[120px] leading-none font-serif">“</span>
           </div>

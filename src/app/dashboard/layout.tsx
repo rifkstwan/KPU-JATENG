@@ -8,12 +8,8 @@ export const metadata: Metadata = {
     default: "SPPD Internal KPU Jateng",
   },
 }
-import { prisma } from "@/lib/prisma"   // <-- tambahkan di sini
-import { SignOutButton } from "@/components/sign-out-button"
-import NotifBell from "@/components/notif-bell"
-import NavLink from "@/components/nav-link"
-import TopbarUser from "@/components/topbar-user"
-import TopbarSearch from "@/components/topbar-search"
+import { prisma } from "@/lib/prisma"
+import DashboardClientWrapper from "@/components/dashboard-client-wrapper"
 
 const Icons = {
   dashboard: (
@@ -128,178 +124,14 @@ const nama = userDb?.nama || session.user?.name || "User"  // ← pindah ke sini
 const image = userDb?.foto ?? null
 
   return (
-    <div
-      style={{
-        display: "flex",
-        minHeight: "100dvh",
-        fontFamily: "'Inter', 'Segoe UI', sans-serif",
-        background: "#f5f6fa",
-      }}
+    <DashboardClientWrapper
+      nama={nama}
+      role={role}
+      image={image}
+      items={items}
+      footerItems={footerItems}
     >
-      <aside
-        style={{
-          width: 220,
-          background: "#00205b",
-          display: "flex",
-          flexDirection: "column",
-          position: "fixed",
-          top: 0,
-          left: 0,
-          height: "100vh",
-          zIndex: 200,
-        }}
-      >
-        <div
-          style={{
-            padding: "20px 16px 18px",
-            display: "flex",
-            alignItems: "center",
-            gap: "12px",
-            borderBottom: "1px solid rgba(255,255,255,0.07)",
-            flexShrink: 0,
-          }}
-        >
-          <div
-            style={{
-              width: 38,
-              height: 38,
-              background: "#fff",
-              borderRadius: "10px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-              boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-              overflow: "hidden",
-            }}
-          >
-            <img
-              src="/logo-kpu.png"
-              alt="Logo KPU"
-              width={34}
-              height={34}
-              style={{ objectFit: "contain" }}
-            />
-          </div>
-
-          <div>
-            <div
-              style={{
-                fontWeight: 800,
-                fontSize: "14px",
-                color: "#fff",
-                letterSpacing: "-0.2px",
-                lineHeight: 1.2,
-              }}
-            >
-              SPPD KPU
-            </div>
-            <div
-              style={{
-                fontSize: "11px",
-                color: "rgba(255,255,255,0.45)",
-                letterSpacing: "0.3px",
-                marginTop: "2px",
-              }}
-            >
-              Jawa Tengah
-            </div>
-          </div>
-        </div>
-
-        <nav
-          style={{
-            padding: "12px 10px",
-            flex: 1,
-            overflowY: "auto",
-            display: "flex",
-            flexDirection: "column",
-            gap: "2px",
-          }}
-        >
-          {items.map(item => (
-            <NavLink key={item.href} href={item.href} label={item.label} icon={item.icon} />
-          ))}
-        </nav>
-
-        <div
-          style={{
-            padding: "10px 10px 18px",
-            borderTop: "1px solid rgba(255,255,255,0.07)",
-            display: "flex",
-            flexDirection: "column",
-            gap: "2px",
-            flexShrink: 0,
-          }}
-        >
-          {footerItems.map(item => (
-            <NavLink key={item.href} href={item.href} label={item.label} icon={item.icon} />
-          ))}
-          <SignOutButton />
-        </div>
-      </aside>
-
-      <div
-        style={{
-          marginLeft: 220,
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          minWidth: 0,
-        }}
-      >
-        <header
-          style={{
-            background: "#ffffff",
-            borderBottom: "1px solid #eef0f4",
-            padding: "0 24px",
-            height: 64,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            position: "sticky",
-            top: 0,
-            zIndex: 100,
-            boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-            flexShrink: 0,
-            gap: 16,
-          }}
-        >
-          <TopbarSearch />
-
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "12px",
-              flexShrink: 0,
-            }}
-          >
-            <NotifBell />
-
-            <div
-              style={{
-                width: 1,
-                height: 28,
-                background: "#eef0f4",
-              }}
-            />
-
-            <TopbarUser nama={nama} role={role} image={image} />
-          </div>
-        </header>
-
-        <main
-          style={{
-            padding: "24px",
-            flex: 1,
-            background: "#f5f6fa",
-            minHeight: 0,
-          }}
-        >
-          {children}
-        </main>
-      </div>
-    </div>
+      {children}
+    </DashboardClientWrapper>
   )
 }
